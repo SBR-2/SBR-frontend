@@ -39,15 +39,16 @@
 import { defineComponent, ref } from 'vue';
 import { useToast } from "vue-toastification";
 import { useMutation } from '@vue/apollo-composable';
-import PasswordField from '../../components/ui/forms/PasswordField.vue';
 import gql from 'graphql-tag';
+import PasswordField from '../../components/ui/forms/PasswordField.vue';
 import { useAuthStore } from '../../stores/authStore';
 
 const LOGIN_MUTATION = gql`
     mutation Login($input: LoginInput!) {
         login(input: $input) {
-            token
-            message
+            loginResponse {
+                token
+            }
         }
     }
 `;
@@ -63,20 +64,24 @@ export default defineComponent({
         const toast = useToast();
 
         const { mutate: login, onDone, onError } = useMutation(LOGIN_MUTATION);
+
         onDone((data) => {
             loading.value = false;
-            if (data.data.login.token) {
-                // Guardar token en el estado
-                useAuthStore().login(data.data.login.token);
+            if (data.data.login.loginResponse.token) {
+                
+                toast.success('Login exitoso!');
 
-                toast.success('Login successful!');
+                // Guardar el token en el store
+                useAuthStore().login(data.data.login.loginResponse.token);
+                
             } else {
-                toast.error('No se pudo iniciar sesión, por favor intenta de nuevo.');
+                toast.error('Error en el login');
             }
         });
-        onError(() => {
+
+        onError((error) => {
             loading.value = false;
-            toast.error('No se pudo iniciar sesión, por favor intenta de nuevo.');
+            toast.error(error.message);
         });
 
         const loginUser = () => {

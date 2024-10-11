@@ -1,4 +1,9 @@
 import { defineStore } from "pinia";
+import { jwtDecode } from "jwt-decode";
+
+interface JwtPayload {
+    exp: number;
+}
 
 export const useAuthStore = defineStore({
     id: 'auth',
@@ -20,8 +25,19 @@ export const useAuthStore = defineStore({
             return this.accessToken;
         },
         isAuthenticated(): boolean {
-            // TODO: Decodificar el token y verificar si es válido (expirado o no)
-            return this.accessToken !== null; // Retornar true si el token está presente
+            if (this.accessToken !== null) {
+                // Verificar que el token no esté expirado
+                try {
+                    const decoded = jwtDecode<JwtPayload>(this.accessToken);
+                    const currentTime = Math.floor(Date.now() / 1000);
+                    return decoded.exp > currentTime;
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    return false;
+                }
+            }
+
+            return false;
         }
     },
 });
