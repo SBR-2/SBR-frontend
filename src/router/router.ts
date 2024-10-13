@@ -12,6 +12,23 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../views/VistaDeEjemplo.vue'),
         meta: { requiresAuth: true },
     },
+    {
+        path: '/',
+        name: 'PanelPrincipal',
+        component: () => import('../components/admin/panel-principal.vue')
+    },
+    {
+        path: '/',
+        name: 'dashboard',
+        component: () => import('../components/admin/dashboard.vue')
+    },
+    {
+        path: '/',
+        name: 'listaUsuarios',
+        component: () => import('../components/admin/listausuario.vue')
+    },
+   
+   
 ];
 
 // Inicialización del router
