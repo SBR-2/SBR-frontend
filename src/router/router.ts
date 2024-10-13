@@ -5,7 +5,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/', // Ruta por defecto
         name: 'EjemploDeRuta',
-        component: () => import('../views/ProductForm.vue')
+        component: () => import('../views/VistaDeEjemplo.vue')
     },
 ];
 
