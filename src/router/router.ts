@@ -3,10 +3,22 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 // Definición de las rutas
 const routes: Array<RouteRecordRaw> = [
     {
-        path: '/', // Ruta por defecto
-        name: 'EjemploDeRuta',
-        component: () => import('../views/VistaDeEjemplo.vue')
+        path: '/',
+        name: 'PanelPrincipal',
+        component: () => import('../components/admin/panel-principal.vue')
     },
+    {
+        path: '/',
+        name: 'dashboard',
+        component: () => import('../components/admin/dashboard.vue')
+    },
+    {
+        path: '/',
+        name: 'listaUsuarios',
+        component: () => import('../components/admin/listausuario.vue')
+    },
+   
+   
 ];
 
 // Inicialización del router
