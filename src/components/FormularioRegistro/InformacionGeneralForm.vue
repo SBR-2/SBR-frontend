@@ -9,6 +9,7 @@
       v-model="form.formData.marca"
       class="form-control"
       placeholder="Lays"
+      required
     />
   </div>
 
@@ -35,6 +36,7 @@
           value="nacional"
           v-model="form.formData.origen"
           class="form-check-input"
+          
         />
         <label class="form-check-label" for="nacional">Nacional</label>
       </div>
@@ -106,4 +108,5 @@ export default {
 h2 {
   margin-bottom: 1.5rem;
 }
+
 </style>

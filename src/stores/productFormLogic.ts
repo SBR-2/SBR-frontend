@@ -77,6 +77,7 @@ export const useProductFormStore = defineStore("productForm", () => {
       console.error("GraphQL Error:", err);
     }
   }
+  
   const categorias = ref([]); // Lista para almacenar las categorías
   const subcategorias = ref([]); // Lista para almacenar las subcategorías
 
@@ -157,7 +158,9 @@ export const useProductFormStore = defineStore("productForm", () => {
       const { data } = await apolloClient.query({
         query: gql`
           query riesgos($subcategoriaId: Int!) {
-            riesgoSubcategoria(where: { riesgoSubcategoriaId: { eq: $subcategoriaId } }) {
+            riesgoSubcategoria(
+              where: { riesgoSubcategoriaId: { eq: $subcategoriaId } }
+            ) {
               items {
                 riesgo {
                   estado
@@ -172,9 +175,13 @@ export const useProductFormStore = defineStore("productForm", () => {
           subcategoriaId,
         },
       });
-  
+
       // Verificar si se obtuvo un riesgo válido
-      if (data && data.riesgoSubcategoria && data.riesgoSubcategoria.items.length > 0) {
+      if (
+        data &&
+        data.riesgoSubcategoria &&
+        data.riesgoSubcategoria.items.length > 0
+      ) {
         // Extraer el riesgo del primer elemento
         riesgoData.value = data.riesgoSubcategoria.items[0].riesgo;
         console.log("Riesgo obtenido:", riesgoData.value);
@@ -204,7 +211,6 @@ export const useProductFormStore = defineStore("productForm", () => {
       console.error("GraphQL Error:", err);
     }
   }
-  
 
   const changeSubcategoria = computed(() => {
     if (formData.categoria) {
@@ -219,9 +225,6 @@ export const useProductFormStore = defineStore("productForm", () => {
   });
 
   const riesgoText = computed(() => {
-
-
-
     switch (riesgo.value) {
       case 0:
         return "Sin evaluar";
@@ -263,11 +266,25 @@ export const useProductFormStore = defineStore("productForm", () => {
     }
   }
 
+  const currentForm = ref<any>(null);
+
   function submitForm() {
-    console.log("Formulario enviado:", formData);
-    if (currentStep.value < 4) {
-      currentStep.value++;
+    console.log("Formulario enviado:", currentForm.value.checkValidity());
+
+
+    if (currentForm.value.checkValidity()) {
+      if (currentStep.value < 4) {
+        currentStep.value++;
+      }
+      // Enviar formulario
+    } else {
+      currentForm.value.classList.add('was-validated');
+      console.error("Formulario inválido.");
     }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }
 
   return {
@@ -280,6 +297,7 @@ export const useProductFormStore = defineStore("productForm", () => {
     estadoFisicos,
     categorias,
     subcategorias,
+    currentForm,
     fetchEstadoFisicos,
     changeSubcategoria,
     fetchCategorias,

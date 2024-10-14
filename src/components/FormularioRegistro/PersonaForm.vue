@@ -10,6 +10,7 @@
       v-model="form.formData.personaContacto.nombre"
       class="form-control"
       placeholder="Pedro Pérez"
+      required
     />
   </div>
 

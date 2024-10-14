@@ -94,7 +94,7 @@
 
   <label>Descripción de Elaboración</label>
   <div class="mb-3">
-    <input type="file" class="form-control" id="elaborationDescription" />
+    <input type="file" class="form-control" id="elaborationDescription"/>
   </div>
 
   <label>Arte de Etiqueta</label>
