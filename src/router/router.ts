@@ -27,6 +27,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'listaUsuarios',
         component: () => import('../components/admin/listausuario.vue')
     },
+    {
+        path: '/form',
+        name: 'registro',
+        component: () => import('../views/ProductForm.vue')
+    },
    
    
 ];

@@ -6,5 +6,5 @@
 </template>
 
 <script setup lang="ts">
-import RegisterProductForm from "../components/FormularioRegistro/DashboardUsuario.vue"
+import RegisterProductForm from "../components/FormularioRegistro/RegisterProductForm.vue"
 </script>

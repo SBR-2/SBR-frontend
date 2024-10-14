@@ -1,56 +1,215 @@
-import { defineStore } from 'pinia';
-import { ref, reactive, computed } from 'vue';
+import { defineStore } from "pinia";
+import { ref, reactive, computed } from "vue";
+import apolloClient from "../apolloClient"; // Asegúrate de ajustar la ruta
+import gql from "graphql-tag";
 
-export const useProductFormStore = defineStore('productForm', () => {
+export const useProductFormStore = defineStore("productForm", () => {
   const currentStep = ref(1);
   const formData = reactive({
-    marca: '',
-    nombreProducto: '',
-    categoria: '',
-    subcategoria: '',
-    estadoFisico: '',
+    marca: "",
+    nombreProducto: "",
+    categoria: "",
+    subcategoria: "",
+    estadoFisico: "",
     unIngrediente: true,
-    envasePrimario: '',
-    materialEmpaque: '',
-    presentacion: '',	
-    origen: '',
+    envasePrimario: "",
+    materialEmpaque: "",
+    presentacion: "",
+    origen: "",
     representanteLegal: {
-        nombre: '',
-        direccion: '',
-        telefono: '',
-        email: '',
-        cedula: '',
-        rnc : '',
-        requeireTitular: true,
+      nombre: "",
+      direccion: "",
+      telefono: "",
+      email: "",
+      cedula: "",
+      rnc: "",
+      requeireTitular: true,
     },
     personaContacto: {
-        nombre: '',
-        telefono: '',
-        email: '',
+      nombre: "",
+      telefono: "",
+      email: "",
     },
-    titular:{
-        nombre: '',
-        direccion: '',
-        telefono: '',
-        email: '',
+    titular: {
+      nombre: "",
+      direccion: "",
+      telefono: "",
+      email: "",
     },
     almacenador: {
-        nombre: '',
-        direccion: ''
+      nombre: "",
+      direccion: "",
     },
     fabricante: {
-      nombre: '',
-      direccion: '',
-      pais: '',
+      nombre: "",
+      direccion: "",
+      pais: "",
       esTitular: true,
       esExportador: false,
     },
     acondicionador: {
-      nombre: '',
-      direccion: '',
-      pais: '',
-      esFabricante: true
+      nombre: "",
+      direccion: "",
+      pais: "",
+      esFabricante: true,
     },
+  });
+
+  const estadoFisicos = ref([]); // Lista para almacenar los valores de estado físico
+
+  // Función para obtener los estados físicos
+  async function fetchEstadoFisicos() {
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`
+          query categorias {
+            estadoFisicos {
+              items {
+                estadoFisico1
+                estadoFisicoId
+              }
+            }
+          }
+        `,
+      });
+      estadoFisicos.value = data.estadoFisicos.items;
+    } catch (err) {
+      console.error("GraphQL Error:", err);
+    }
+  }
+  const categorias = ref([]); // Lista para almacenar las categorías
+  const subcategorias = ref([]); // Lista para almacenar las subcategorías
+
+  async function fetchCategorias() {
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`
+          query categorias {
+            riesgoCategoria {
+              items {
+                estado
+                riesgoCategoria
+                riesgoCategoriaId
+              }
+            }
+          }
+        `,
+      });
+      categorias.value = data.riesgoCategoria.items;
+    } catch (err) {
+      console.error("GraphQL Error:", err);
+    }
+  }
+
+  async function fetchSubcategorias() {
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`
+          query getRiesgoCategoria($categoriaId: Int!) {
+            riesgoCategoria(
+              where: { riesgoCategoriaId: { eq: $categoriaId } }
+            ) {
+              items {
+                riesgoSubcategoria {
+                  estado
+                  riesgoSubcategoria
+                  riesgoSubcategoriaId
+                  riesgo {
+                    estado
+                    riesgo1
+                    riesgoId
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          categoriaId: formData.categoria,
+        },
+      });
+      const subcat = data.riesgoCategoria.items[0].riesgoSubcategoria;
+      console.log("Subcategorías obtenidas:", subcat);
+
+      if (subcategorias) {
+        subcategorias.value = subcat.map((item: any) => ({
+          subcategoria: item.riesgoSubcategoria,
+          subcategoriaId: item.riesgoSubcategoriaId,
+          estado: item.estado,
+          riesgo: item.riesgo,
+        }));
+      }
+    } catch (err) {
+      console.error("GraphQL Error:", err);
+    }
+  }
+
+  interface Riesgo {
+    estado: string;
+    riesgo1: string;
+    riesgoId: number;
+  }
+
+  const riesgoData = ref<Riesgo | null>(null);
+
+  async function fetchRiesgo(subcategoriaId: number) {
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`
+          query riesgos($subcategoriaId: Int!) {
+            riesgoSubcategoria(where: { riesgoSubcategoriaId: { eq: $subcategoriaId } }) {
+              items {
+                riesgo {
+                  estado
+                  riesgo1
+                  riesgoId
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          subcategoriaId,
+        },
+      });
+  
+      // Verificar si se obtuvo un riesgo válido
+      if (data && data.riesgoSubcategoria && data.riesgoSubcategoria.items.length > 0) {
+        // Extraer el riesgo del primer elemento
+        riesgoData.value = data.riesgoSubcategoria.items[0].riesgo;
+        console.log("Riesgo obtenido:", riesgoData.value);
+
+        if (!riesgoData.value) {
+          console.error("No se encontró riesgo para esta subcategoría.");
+          return;
+        }
+        switch (riesgoData.value.riesgo1) {
+          case "MEDIO":
+            riesgo.value = 2;
+            break;
+          case "ALTO":
+            riesgo.value = 3;
+            break;
+          case "BAJO":
+            riesgo.value = 1;
+            break;
+          default:
+            riesgo.value = 0;
+        }
+      } else {
+        console.error("No se encontró riesgo para esta subcategoría.");
+        riesgoData.value = null; // Limpiar el valor si no hay riesgo
+      }
+    } catch (err) {
+      console.error("GraphQL Error:", err);
+    }
+  }
+  
+
+  const changeSubcategoria = computed(() => {
+    if (formData.categoria) {
+      fetchSubcategorias();
+    }
   });
 
   const riesgo = ref(0);
@@ -60,50 +219,38 @@ export const useProductFormStore = defineStore('productForm', () => {
   });
 
   const riesgoText = computed(() => {
+
+
+
     switch (riesgo.value) {
       case 0:
-        return 'Sin evaluar';
+        return "Sin evaluar";
       case 1:
-        return 'Bajo';
+        return "Bajo";
       case 2:
-        return 'Medio';
+        return "Medio";
       case 3:
-        return 'Alto';
+        return "Alto";
       default:
-        return 'Desconocido';
+        return "Desconocido";
     }
   });
 
   const riesgoClass = computed(() => {
     switch (riesgo.value) {
-      case 0:
-        return 'bg-secondary';
       case 1:
-        return 'bg-success';
+        return "bg-success";
       case 2:
-        return 'bg-warning';
+        return "bg-warning";
       case 3:
-        return 'bg-danger';
+        return "bg-danger";
       default:
-        return 'bg-secondary';
+        return "bg-secondary";
     }
   });
 
   function calcularRiesgo() {
-    // Aquí puedes implementar la lógica real para calcular el riesgo
-    switch (formData.subcategoria) {
-      case 'papas':
-        riesgo.value = 2;
-        break;
-      case 'gaseosas':
-        riesgo.value = 3;
-        break;
-      case 'yogurt':
-        riesgo.value = 1;
-        break;
-      default:
-        riesgo.value = 0;
-    }
+    fetchRiesgo(parseInt(formData.subcategoria));
   }
 
   function debug() {
@@ -117,7 +264,7 @@ export const useProductFormStore = defineStore('productForm', () => {
   }
 
   function submitForm() {
-    console.log('Formulario enviado:', formData);
+    console.log("Formulario enviado:", formData);
     if (currentStep.value < 4) {
       currentStep.value++;
     }
@@ -130,9 +277,15 @@ export const useProductFormStore = defineStore('productForm', () => {
     progress,
     riesgoText,
     riesgoClass,
+    estadoFisicos,
+    categorias,
+    subcategorias,
+    fetchEstadoFisicos,
+    changeSubcategoria,
+    fetchCategorias,
     debug,
     calcularRiesgo,
     goBack,
-    submitForm
+    submitForm,
   };
 });
