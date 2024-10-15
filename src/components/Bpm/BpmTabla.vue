@@ -32,12 +32,12 @@
             </tr>
             <tr
               v-for="pregunt in subcategoria.pregunta"
-              :key="pregunt.preguntaId"
+              :key="pregunt.preguntaId" class="align-middle"
             >
-              <td class="text-start">{{ pregunt.nombre }}</td>
+              <td class=" text-start">{{ pregunt.nombre }}</td>
               <td colspan="1">
                 <input @change="form.guardarRespuesta(pregunt.preguntaId, $event.target.value)"
-                :checked="form.getRespuesta(pregunt.preguntaId) === '1'" class="form-check-input" type="radio" :name="'option-' + pregunt.preguntaId" value="1" 
+                :checked="form.getRespuesta(pregunt.preguntaId) === '1'" class="text-center form-check-input" type="radio" :name="'option-' + pregunt.preguntaId" value="1" 
                 required />
               </td>
               <td colspan="1">

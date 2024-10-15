@@ -1,9 +1,13 @@
 import { defineStore } from "pinia";
 import { ref, reactive, computed } from "vue";
+import { useToast } from "vue-toastification";
+import { useRouter } from "vue-router";
 import apolloClient from "../apolloClient"; // Asegúrate de ajustar la ruta
 import gql from "graphql-tag";
 
 export const useProductFormStore = defineStore("productForm", () => {
+  const toast = useToast();
+  const router = useRouter();
   const currentStep = ref(1);
   const formData = reactive({
     marca: "",
@@ -263,6 +267,8 @@ export const useProductFormStore = defineStore("productForm", () => {
   function goBack() {
     if (currentStep.value > 1) {
       currentStep.value--;
+    }else if (currentStep.value === 1) {
+      router.push('/user/dashboard');
     }
   }
 
@@ -278,6 +284,7 @@ export const useProductFormStore = defineStore("productForm", () => {
       }
       // Enviar formulario
     } else {
+      toast.error("Por favor, completa los campos requeridos.");
       currentForm.value.classList.add('was-validated');
       console.error("Formulario inválido.");
     }

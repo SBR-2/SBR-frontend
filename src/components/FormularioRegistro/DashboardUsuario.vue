@@ -38,7 +38,11 @@
       <div class="row">
         <div class="col-12">
           <h4>Registros:</h4>
-          <button class="btn btn-primary mb-3 d-flex align-items-center justify-content-center"> <IconNew class="me-2" />Crear nuevo registro</button>
+          <router-link to="/user/registro">
+          <button class="btn btn-primary mb-3 d-flex align-items-center justify-content-center"> 
+            <IconNew class="me-2" />Crear nuevo registro
+          </button>
+        </router-link>
 
           <!-- Filtro y búsqueda -->
            <div class="filters">
