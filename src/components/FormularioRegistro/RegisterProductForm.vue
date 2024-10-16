@@ -1,4 +1,5 @@
 <template>
+  <div class="d-flex">
   <div class="formContainer">
     <div class="mt-2 ms-2">
       <button class="btn" @click="form.goBack">
@@ -62,6 +63,13 @@
       </div>
     </div>
   </div>
+  <div class="image-side">
+  <img
+    src="../../../public/pexels.jpg"
+    alt="Registro de producto"
+    class="img-fluid full-height-image"/>
+  </div>
+</div>
 </template>
 
 <script>
@@ -128,11 +136,39 @@ export default {
   display: flex;
   text-align: left;
   flex-wrap: wrap;
-  max-width: 600px;
-  margin-left: 5dvh;
+  max-width: 800px;
+  margin-left: 1dvh;
 }
 .container {
   margin-top: 30px;
-  max-width: 600px;
+  max-width: 1000px;
+}
+.full-height-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-side {
+  width: 45%;
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    flex-direction: column;
+  }
+
+  .formContainer {
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  .image-side {
+    display: none;
+  }
 }
 </style>

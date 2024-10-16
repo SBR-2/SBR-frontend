@@ -37,16 +37,16 @@
               <td class=" text-start">{{ pregunt.nombre }}</td>
               <td colspan="1">
                 <input @change="form.guardarRespuesta(pregunt.preguntaId, $event.target.value)"
-                :checked="form.getRespuesta(pregunt.preguntaId) === '1'" class="text-center form-check-input" type="radio" :name="'option-' + pregunt.preguntaId" value="1" 
+                :checked="form.getRespuesta(pregunt.preguntaId) === '1'" class="text-center form-check-input" type="radio" :name="'option-' + pregunt.preguntaId" value="CC" 
                 required />
               </td>
               <td colspan="1">
                 <input required @change="form.guardarRespuesta(pregunt.preguntaId, $event.target.value)"
-                :checked="form.getRespuesta(pregunt.preguntaId) === '0.5'" class="form-check-input" type="radio" :name="'option-' + pregunt.preguntaId" value="0.5" />
+                :checked="form.getRespuesta(pregunt.preguntaId) === '0.5'" class="form-check-input" type="radio" :name="'option-' + pregunt.preguntaId" value="CP" />
               </td>
               <td colspan="1" >
                 <input required @change="form.guardarRespuesta(pregunt.preguntaId, $event.target.value)"
-                :checked="form.getRespuesta(pregunt.preguntaId) === '0'"class="form-check-input" type="radio" :name="'option-' + pregunt.preguntaId" value="0" />
+                :checked="form.getRespuesta(pregunt.preguntaId) === '0'"class="form-check-input" type="radio" :name="'option-' + pregunt.preguntaId" value="IT" />
               </td>
               <td colspan="1">
                 <input required @change="form.guardarRespuesta(pregunt.preguntaId, $event.target.value)"

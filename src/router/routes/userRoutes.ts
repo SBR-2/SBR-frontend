@@ -16,6 +16,11 @@ const userRoutes: Array<RouteRecordRaw> = [
         name: 'Bpm',
         component: () => import('../../components/Bpm/BpmForm.vue')
     },
+    {
+        path: '/esta',
+        name: 'Bpmm',
+        component: () => import('../../components/Bpm/EstablecimientoForm.vue')
+    },
 ];
 
 export default userRoutes;

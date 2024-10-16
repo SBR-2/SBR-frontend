@@ -1,6 +1,7 @@
 <template>
-  <div class="dashboardContainer">
-    <div class="container mt-3">
+  <div class="dashboardContainer d-flex ">
+    <SidebarUser />
+    <div class="container">
       <h4>Resumen de registros</h4>
       <!-- Header con los indicadores -->
       <div class="row mb-4 text-start">
@@ -113,11 +114,13 @@
 </template>
 
 <script>
+import SidebarUser from "./SidebarUser.vue";
 import IconNew from "../icons/IconNew.vue";
 export default {
   name: "Dashboard",
   components:{
-    IconNew
+    IconNew,
+    SidebarUser
   }
 };
 </script>
@@ -171,6 +174,8 @@ export default {
 }
 .container {
   max-width: 900px;
+  margin-top: 50px;
+  margin-left: 200px;
 }
 .card {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

@@ -59,6 +59,14 @@ export const useProductFormStore = defineStore("productForm", () => {
     },
   });
 
+  const factores = reactive({
+    haccp: "",
+    poblacion : "",
+    produccion: "",
+    rechazos: "",
+    muestras: "",
+  });
+
   const estadoFisicos = ref([]); // Lista para almacenar los valores de estado físico
 
   // Función para obtener los estados físicos
@@ -81,6 +89,51 @@ export const useProductFormStore = defineStore("productForm", () => {
       console.error("GraphQL Error:", err);
     }
   }
+
+  const factoresHACCP = ref([]); // Lista para almacenar los factores HAACP
+  const factoresPoblacion = ref([]); // Lista para almacenar los factores de población
+  const factoresProduccion = ref([]); // Lista para almacenar los factores de producción
+  const factoresRechazos = ref([]); // Lista para almacenar los factores de rechazos
+  const factoresMuestras = ref([]); // Lista para almacenar los factores de muestras
+
+  async function initFactores() {
+    factoresHACCP.value = await fetchFactores(1);
+    factoresPoblacion.value = await fetchFactores(3);
+    factoresProduccion.value = await fetchFactores(4);
+    factoresRechazos.value = await fetchFactores(5);
+    factoresMuestras.value = await fetchFactores(6);
+  }
+
+  async function fetchFactores (factorId: number) {
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`
+          query getFactores($factorId: Int!) {
+            opcions(where: { factorId: { eq: $factorId } }) {
+              items {
+                detalle
+                estado
+                factorId
+                opcionId
+                valor
+              }
+            }
+          }
+        `,
+        variables: {
+          factorId,
+        },
+      });
+      if (data.opcions.items) {
+        return data.opcions.items;
+      }
+      console.log("Factores obtenidos:", data.opcions.items);
+
+    } catch (err) {
+      console.error("GraphQL Error:", err);
+    }
+  }
+
   
   const categorias = ref([]); // Lista para almacenar las categorías
   const subcategorias = ref([]); // Lista para almacenar las subcategorías
@@ -295,6 +348,12 @@ export const useProductFormStore = defineStore("productForm", () => {
   }
 
   return {
+    factoresHACCP,
+    factoresPoblacion,
+    factoresProduccion,
+    factoresRechazos,
+    factoresMuestras,
+    factores,
     currentStep,
     formData,
     riesgo,
@@ -307,6 +366,7 @@ export const useProductFormStore = defineStore("productForm", () => {
     currentForm,
     fetchEstadoFisicos,
     changeSubcategoria,
+    initFactores,
     fetchCategorias,
     debug,
     calcularRiesgo,

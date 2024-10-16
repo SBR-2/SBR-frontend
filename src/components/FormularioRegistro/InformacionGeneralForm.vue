@@ -82,22 +82,60 @@
       id="salesCertificate"
       accept=".pdf"
     />
+  </div>
     <!-- @change="onFileChange($event, 'brand')" -->
     <!--
                   <div v-if="files.brand" class="mt-2">
                     Archivo seleccionado: {{ files.brand.name }}
                   </div>
                   -->
+      <!-- Select INAIBE   -->
+      <div class="mb-3">
+        <label for="inaibe" class="form-label">INAIBE</label>
+        <select
+          id="inaibe"
+          v-model="form.factores.poblacion"
+          class="form-select"
+          required
+        >
+          <option value="" disabled selected>Seleccione una opción</option>
+          <option v-for="option in form.factoresPoblacion" :key="option.opcionId" :value="option.opcionId">
+            {{ option.detalle }}
+          </option>
+        </select>
+
+
+        <!-- Select Produccion   -->
+        <div class="mb-3">
+          <label for="produccion" class="form-label">Producción</label>
+          <select
+            id="produccion"
+            v-model="form.factores.produccion"
+            class="form-select"
+            required
+          >
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option v-for="option in form.factoresProduccion" :key="option.opcionId" :value="option.opcionId">
+              {{ option.detalle }}
+            </option>
+          </select>
+        </div>
+  
   </div>
 </template>
 
 <script>
+import { onMounted, ref } from "vue";
 import { useProductFormStore } from "../../stores/productFormLogic";
 
 export default {
   name: "InformacionGeneral",
   setup() {
-    const form = useProductFormStore();
+    const form = useProductFormStore(); 
+
+    onMounted(() => {
+         form.initFactores();
+    });
 
     return { form };
   },

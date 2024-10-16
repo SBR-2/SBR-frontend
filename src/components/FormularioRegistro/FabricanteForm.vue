@@ -115,6 +115,23 @@
       >
       <input type="file" class="form-control" id="certificadoExportacion" />
     </div>
+
+    <!-- Select HACCP -->
+    <div class="mb-3">
+      <label for="haccp" class="form-label">HACCP</label>
+      <select
+        id="haccp"
+        v-model="form.factores.haccp"
+        class="form-select"
+        required
+      >
+        <option value="" disabled selected>Seleccione una opción</option>
+        <option v-for="option in form.factoresHACCP" :key="option.opcionId" :value="option.opcionId">
+          {{ option.nombre }}
+        </option>
+
+      </select>
+      </div>
   </div>
 
 </template>

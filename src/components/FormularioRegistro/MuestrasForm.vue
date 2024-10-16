@@ -8,6 +8,46 @@
         <input class="form-control" type="file" :id="'file' + (n + 1)" />
       </div>
     </div>
+
+    <!-- Select Factor Muestras -->
+    <div class="mb-3">
+      <label for="muestras" class="form-label">Muestras</label>
+      <select
+        id="muestras"
+        v-model="form.factores.muestras"
+        class="form-select"
+        required
+      >
+        <option value="" disabled selected>Seleccione una opción</option>
+        <option
+          v-for="option in form.factoresMuestras"
+          :key="option.opcionId"
+          :value="option.opcionId"
+        >
+          {{ option.detalle }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Select Factor Rechazos -->
+    <div class="mb-3">
+      <label for="rechazos" class="form-label">Rechazos</label>
+      <select
+        id="rechazos"
+        v-model="form.factores.rechazos"
+        class="form-select"
+        required
+      >
+        <option value="" disabled selected>Seleccione una opción</option>
+        <option
+          v-for="option in form.factoresRechazos"
+          :key="option.opcionId"
+          :value="option.opcionId"
+        >
+          {{ option.detalle }}
+        </option>
+      </select>
+    </div>
   </div>
 </template>
 

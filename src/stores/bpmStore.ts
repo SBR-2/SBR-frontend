@@ -2,6 +2,9 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import apolloClient from "../apolloClient";
 import gql from "graphql-tag";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import { reactive } from "vue";
 
 interface Respuesta {
   preguntaId: number;
@@ -15,7 +18,34 @@ export const useBpmStore = defineStore("bpm", () => {
   const respuestas = ref<Respuesta[]>([]);
   const form = ref<any>();
 
+  const router = useRouter();
+
+    const establecimientoForm = reactive<any>({
+      nombre: '',
+      calle: '',
+      numero: '',
+      rnc: '',
+      provincia: '',
+      municipio: '',
+      telefono: '',
+      fechaInicioOperaciones: '',
+      fechaVencimientoPermisoSanitario: '',
+      numeroProductosElaborados: 0,
+      produccionAnual: 0,
+      numeroEmpleados: 0,
+      tipoComercializacion: '',
+      mercadoObjetivo: '',
+      fechaUltimaInspeccion: '',
+      fechaProximaInspeccion: '',
+      nombreOficialDPS: '',
+      nombreTecnicoDigemaps: '',
+      calificacionUltimaInspeccion: 0,
+    });
+
+    const errors = ref<any>({});
+
   fetchGroups();
+
 
   async function fetchGroups() {
     try {
@@ -74,6 +104,7 @@ export const useBpmStore = defineStore("bpm", () => {
         (respuesta: Respuesta) => respuesta.respuesta !== ""
       );
       console.log("Todas respondidas:", todasRespondidas);
+      console.log("Promedio:", calcularPromedio.value * 100);
       if (!todasRespondidas) {
         console.log("No todas las preguntas han sido respondidas.");
       }
@@ -119,6 +150,35 @@ export const useBpmStore = defineStore("bpm", () => {
     const respuesta = respuestas.value.find((r) => r.preguntaId === preguntaId);
     return respuesta ? respuesta.observacion : "";
   }
+
+  const calcularPromedio = computed(() => {
+    let total = 0;
+    let count = 0;
+
+    respuestas.value.forEach((respuesta) => {
+      switch (respuesta.respuesta) {
+        case "CC":
+          total += 1;
+          count++;
+          break;
+        case "CP":
+          total += 0.5;
+          count++;
+          break;
+        case "IT":
+          total += 0;
+          count++;
+          break;
+        case "NA":
+          // Do not count NA responses
+          break;
+        default:
+          console.warn(`Unexpected response value: ${respuesta.respuesta}`);
+      }
+    });
+    return count > 0 ? total / count : 0;
+  });
+
 
   return {
     currentStep,
