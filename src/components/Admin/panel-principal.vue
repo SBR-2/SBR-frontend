@@ -17,7 +17,7 @@
             <p class="menu-label fs-7">Menu</p>
             <ul class="nav flex-column">
               <li class="nav-item nav-link">
-                  <router-link :to="{ name: 'dashboard' }">
+                  <router-link to="/dashboard">
                     <img :src="('/dashboard.svg')" alt="dashboard Logo" class="img-fluid icon" />
                    <i button type="button" class="fas fa"></i> Dashboard
                 </router-link>
@@ -29,16 +29,16 @@
                 </router-link>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <img :src="('/cotejo.svg')" alt="list Logo" class="img-fluid icon" />
-                  <i button type="button" class="fas fa-clipboard-check"></i> Asignación Evaluación
-                </a>
+                <router-link :to="{ name: 'evaluacion' }">
+                    <img :src="('/cotejo.svg')" alt="cotejo Logo" class="img-fluid icon" />
+                   <i button type="button" class="fas fa"></i> Asignación Evaluación
+                </router-link>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <img :src="('/lupa.svg')" alt="list Logo" class="img-fluid icon" />
-                  <i button type="button" class="fas fa-search"></i> Asignación Inspección
-                </a>
+                <router-link :to="{ name: 'inspeccion' }">
+                    <img :src="('/lupa.svg')" alt="lupa Logo" class="img-fluid icon" />
+                   <i button type="button" class="fas fa"></i> Asignación Inspección
+                </router-link>
               </li>
             </ul>
           </div>
@@ -57,7 +57,9 @@
               <span class="">Administrador</span>
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="#">Personal</a></li>
+              <router-link to="/personal">
+                <li><a class="dropdown-item btn">Personal</ a></li>
+              </router-link>
               <li><a class="dropdown-item" href="#">Cerrar sesión</a></li>
             </ul>
           </li>
@@ -71,8 +73,7 @@
 </template>
 
 <script>
-
-
+import router from '../../router/router';
 
 </script>
 
@@ -96,10 +97,7 @@
     color: #81aa5d;
   }
 
-  .nav-link {
-    color: #2470dc;
-    border-radius: 5px;
-  }
+ 
 
   .nav-link:hover {
     background-color: #c4d9f9;
