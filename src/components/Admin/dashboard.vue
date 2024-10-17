@@ -97,64 +97,10 @@
 
       <!-- Línea de separación entre Usuario y Notificaciones -->
       <hr class="my-5" />
-
-      <!-- Sección de Notificaciones -->
-      <div class="row justify-content-center">
-        <!-- Notificaciones -->
-        <div class="col-lg-4 col-md-6 col-12 mb-4">
-          <div class="card border-0 shadow-sm rounded">
-            <div class="card-header bg-transparent">
-              <h3 class="card-title h6">Asignaciones por Evaluar</h3>
-              <small class="text-muted"
-                >{{ notificaciones.length }} Solicitudes</small
-              >
-            </div>
-            <div class="card-body p-3">
-              <ul class="list-unstyled">
-                <li
-                  v-for="(notificacion, index) in notificaciones"
-                  :key="index"
-                  class="d-flex justify-content-between mb-2"
-                >
-                  <span>{{ notificacion.usuario }}</span>
-                  <small class="text-muted">{{
-                    timeAgo(notificacion.fecha)
-                  }}</small>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6 col-12 mb-4">
-          <div class="card border-0 shadow-sm rounded">
-            <div class="card-header bg-transparent">
-              <h3 class="card-title h6">Asignaciones por Inspecionar</h3>
-              <small class="text-muted"
-                >{{ notificaciones.length }} Solicitudes</small
-              >
-            </div>
-            <div class="card-body p-3">
-              <ul class="list-unstyled">
-                <li
-                  v-for="(notificacion, index) in notificaciones"
-                  :key="index"
-                  class="d-flex justify-content-between mb-2"
-                >
-                  <span>{{ notificacion.usuario }}</span>
-                  <small class="text-muted">{{
-                    timeAgo(notificacion.fecha)
-                  }}</small>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-
-    <PanelPrincipal />
   </div>
+
+  <PanelPrincipal />
 </template>
 
 <script>
