@@ -1,7 +1,7 @@
 <template>
   <div class="formContainer">
     <div class="mt-2 ms-2">
-      <button class="btn" @click="form.goBack">
+      <button class="btn" @click="goBack">
         <IconBack class="me-2" />
         Atras
       </button>
@@ -228,13 +228,36 @@
         <input type="text" id="nombreTecnico" class="form-control" required />
       </div>
     </div>
+    <div class="mt-5 ms-5">
+      <button class="btn btn-primary" @click="goNext">Siguiente</button>
+    </div>
   </div>
 </template>
 
 <script>
+import IconBack from "@/components/Icons/IconBack.vue";
+import { useRouter } from "vue-router";
+
 export default {
-  setup() {},
-  components: {},
+  setup() {
+    const router = useRouter();
+
+    const goBack = () => {
+      router.push("/user/dashboard");
+    };
+
+    const goNext = () => {
+      router.push("/ins/bpm");
+    };
+
+    return {
+      goBack,
+      goNext,
+    };
+  },
+  components: {
+    IconBack,
+  },
 };
 </script>
 

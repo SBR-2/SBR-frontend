@@ -10,6 +10,7 @@
       v-model="form.formData.almacenador.nombre"
       class="form-control"
       placeholder="Pedro Pérez"
+      required
     />
   </div>
 
@@ -22,6 +23,7 @@
       v-model="form.formData.almacenador.direccion"
       class="form-control"
       placeholder="Calle 1, Santo Domingo"
+      required
     />
   </div>
 
@@ -30,7 +32,7 @@
     <label for="permisoSanitario" class="form-label"
       >Permiso Sanitario</label
     >
-    <input type="file" class="form-control" id="permisoSanitario" />
+    <input type="file" class="form-control" id="permisoSanitario"  required/>
   </div>
 </template>
 

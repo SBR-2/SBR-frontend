@@ -25,6 +25,7 @@
       v-model="form.formData.personaContacto.correo"
       class="form-control"
       placeholder="prueba@gmail.com"
+      required
     />
   </div>
 
@@ -38,6 +39,7 @@
       class="form-control"
       placeholder="809-555-5555"
       pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+      required
     />
   </div>
 </template>

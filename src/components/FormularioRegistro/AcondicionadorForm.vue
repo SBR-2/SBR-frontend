@@ -15,6 +15,7 @@
           value="true"
           v-model="form.formData.acondicionador.esFabricante"
           class="form-check-input"
+          required
         />
         <label class="form-check-label" for="si">Si</label>
       </div>
@@ -25,6 +26,7 @@
           value="false"
           v-model="form.formData.acondicionador.esFabricante"
           class="form-check-input"
+          required
         />
         <label class="form-check-label" for="no">No</label>
       </div>
@@ -41,6 +43,7 @@
         v-model="form.formData.acondicionador.nombre"
         class="form-control"
         placeholder="pepe"
+        required
       />
     </div>
 
@@ -53,6 +56,7 @@
         v-model="form.formData.acondicionador.direccion"
         class="form-control"
         placeholder="Calle 1, Santo Domingo"
+        required
       />
     </div>
 
@@ -60,7 +64,7 @@
       <label for="contratoAcondicionador" class="form-label"
         >Contrato de Acondicionamiento</label
       >
-      <input type="file" class="form-control" id="contratoAcondicionador" />
+      <input type="file" class="form-control" id="contratoAcondicionador" required />
     </div>
   </div>
 </template>

@@ -10,6 +10,7 @@
       v-model="form.formData.titular.nombre"
       class="form-control"
       placeholder="Pedro Pérez"
+      required
     />
   </div>
 
@@ -22,6 +23,7 @@
       v-model="form.formData.titular.direccion"
       class="form-control"
       placeholder="Calle 1, Santo Domingo"
+      required
     />
   </div>
 
@@ -36,6 +38,7 @@
       v-model="form.formData.titular.correo"
       class="form-control"
       placeholder="prueba@gmail.com"
+      required
     />
   </div>
 
@@ -49,6 +52,7 @@
       class="form-control"
       placeholder="809-555-5555"
       pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+      required
     />
   </div>
 </template>

@@ -65,7 +65,7 @@
   </div>
   <div class="image-side">
   <img
-    src="../../../public/pexels.jpg"
+    src="../../../public/pexels.png"
     alt="Registro de producto"
     class="img-fluid full-height-image"/>
   </div>

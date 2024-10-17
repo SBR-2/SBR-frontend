@@ -10,6 +10,7 @@
       v-model="form.formData.envasePrimario"
       class="form-control"
       placeholder="Lata"
+      required
     />
   </div>
 
@@ -20,6 +21,7 @@
       type="file"
       class="form-control"
       id="especificacionesEnvasePrimario"
+      required
     />
   </div>
 
@@ -32,6 +34,7 @@
       v-model="form.formData.materialEmpaque"
       class="form-control"
       placeholder="Plástico"
+      required
     />
   </div>
 
@@ -44,6 +47,7 @@
       v-model="form.formData.presentacion"
       class="form-control"
       placeholder="Lata de 200g"
+      required
     />
   </div>
 </template>

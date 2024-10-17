@@ -80,9 +80,11 @@
     </div>
   </div>
 
-   <!-- Es Exportado -->
+  <!-- Es Exportado -->
   <div class="mb-3">
-    <label class="form-label">¿El producto es fabricado en el país, y, es exportado?</label>
+    <label class="form-label"
+      >¿El producto es fabricado en el país, y, es exportado?</label
+    >
     <div>
       <div class="form-check form-check-inline">
         <input
@@ -126,14 +128,36 @@
         required
       >
         <option value="" disabled selected>Seleccione una opción</option>
-        <option v-for="option in form.factoresHACCP" :key="option.opcionId" :value="option.opcionId">
+        <option
+          v-for="option in form.factoresHACCP"
+          :key="option.opcionId"
+          :value="option.opcionId"
+        >
           {{ option.nombre }}
         </option>
-
       </select>
-      </div>
-  </div>
+    </div>
 
+    <!-- Select Produccion   -->
+    <div class="mb-3">
+      <label for="produccion" class="form-label">Producción</label>
+      <select
+        id="produccion"
+        v-model="form.factores.produccion"
+        class="form-select"
+        required
+      >
+        <option value="" disabled selected>Seleccione una opción</option>
+        <option
+          v-for="option in form.factoresProduccion"
+          :key="option.opcionId"
+          :value="option.opcionId"
+        >
+          {{ option.detalle }}
+        </option>
+      </select>
+    </div>
+  </div>
 </template>
 
 <script>

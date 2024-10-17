@@ -5,7 +5,7 @@
     <div v-for="n in form.riesgo" :key="n">
       <div class="mb-3">
         <label :for="'file' + n">Muestra biológica</label>
-        <input class="form-control" type="file" :id="'file' + (n + 1)" />
+        <input class="form-control" type="file" :id="'file' + (n + 1)" required />
       </div>
     </div>
 

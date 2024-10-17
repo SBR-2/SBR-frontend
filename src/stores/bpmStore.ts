@@ -13,6 +13,7 @@ interface Respuesta {
 }
 
 export const useBpmStore = defineStore("bpm", () => {
+  const bpmId = ref(0);
   const currentStep = ref(1);
   const detallesEstablecimiento = ref<any>({});
   const respuestas = ref<Respuesta[]>([]);
@@ -86,7 +87,7 @@ export const useBpmStore = defineStore("bpm", () => {
 
   function prevStep() {
     if (currentStep.value === 1) {
-      return;
+      router.push("/ins/establecimiento");
     }
     currentStep.value -= 1;
     fetchGroups();

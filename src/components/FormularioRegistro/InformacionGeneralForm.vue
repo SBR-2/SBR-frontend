@@ -22,6 +22,7 @@
       v-model="form.formData.nombreProducto"
       class="form-control"
       placeholder="Platanitos"
+      required
     />
   </div>
 
@@ -36,7 +37,7 @@
           value="nacional"
           v-model="form.formData.origen"
           class="form-check-input"
-          
+          required
         />
         <label class="form-check-label" for="nacional">Nacional</label>
       </div>
@@ -47,6 +48,7 @@
           value="extranjero"
           v-model="form.formData.origen"
           class="form-check-input"
+          required
         />
         <label class="form-check-label" for="extranjero">Extranjero</label>
       </div>
@@ -63,6 +65,7 @@
       class="form-control"
       id="brandCertificate"
       accept=".pdf"
+      required
     />
     <!-- @change="onFileChange($event, 'brand')" -->
     <!--
@@ -81,6 +84,7 @@
       class="form-control"
       id="salesCertificate"
       accept=".pdf"
+      required
     />
   </div>
     <!-- @change="onFileChange($event, 'brand')" -->
@@ -103,24 +107,6 @@
             {{ option.detalle }}
           </option>
         </select>
-
-
-        <!-- Select Produccion   -->
-        <div class="mb-3">
-          <label for="produccion" class="form-label">Producción</label>
-          <select
-            id="produccion"
-            v-model="form.factores.produccion"
-            class="form-select"
-            required
-          >
-            <option value="" disabled selected>Seleccione una opción</option>
-            <option v-for="option in form.factoresProduccion" :key="option.opcionId" :value="option.opcionId">
-              {{ option.detalle }}
-            </option>
-          </select>
-        </div>
-  
   </div>
 </template>
 

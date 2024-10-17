@@ -8,6 +8,7 @@
       id="estadoFisico"
       v-model="form.formData.estadoFisico"
       class="form-select"
+      required
     >
     <option disabled value="">Seleccione el estado físico</option>
     <option v-for="estado in form.estadoFisicos" :key="estado.estadoFisicoId" :value="estado.estadoFisico1">
@@ -24,6 +25,7 @@
       v-model="form.formData.categoria"
       class="form-select"
       @change="form.changeSubcategoria"
+      required
     >
       <option disabled value="">Seleccione la categoría</option>
       <option v-for="cats in form.categorias" :key="cats.riesgoCategoriaId" :value="cats.riesgoCategoriaId">
@@ -40,6 +42,7 @@
       v-model="form.formData.subcategoria"
       class="form-select"
       @change="form.calcularRiesgo"
+      required
     >
       <option disabled value="">Seleccione la subcategoría</option>
       <option v-for="cats in form.subcategorias" :key="cats.subcategoriaId" :value="cats.subcategoriaId">
@@ -68,6 +71,7 @@
           value="true"
           v-model="form.formData.unIngrediente"
           class="form-check-input"
+          required
         />
         <label class="form-check-label" for="si">Si</label>
       </div>
@@ -79,6 +83,7 @@
           v-model="form.formData.unIngrediente"
           onclick="form.debug"
           class="form-check-input"
+          required
         />
         <label class="form-check-label" for="no">No</label>
       </div>
@@ -88,18 +93,18 @@
   <div v-if="form.formData.unIngrediente === 'false'">
     <label class="mt-4">Listado de Ingredientes</label>
     <div class="mb-3">
-      <input type="file" class="form-control" id="ingredientsList" />
+      <input type="file" class="form-control" id="ingredientsList" required>
     </div>
   </div>
 
   <label>Descripción de Elaboración</label>
   <div class="mb-3">
-    <input type="file" class="form-control" id="elaborationDescription"/>
+    <input type="file" class="form-control" id="elaborationDescription" required/>
   </div>
 
   <label>Arte de Etiqueta</label>
   <div class="mb-3">
-    <input type="file" class="form-control" id="labelArt" />
+    <input type="file" class="form-control" id="labelArt" required/>
   </div>
 </template>
 

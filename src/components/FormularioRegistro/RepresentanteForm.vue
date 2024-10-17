@@ -10,6 +10,7 @@
       v-model="form.formData.representanteLegal.nombre"
       class="form-control"
       placeholder="Pedro Pérez"
+      required
     />
   </div>
 
@@ -22,6 +23,7 @@
       v-model="form.formData.representanteLegal.direccion"
       class="form-control"
       placeholder="Calle 1, Santo Domingo"
+      required
     />
   </div>
 
@@ -36,6 +38,7 @@
       v-model="form.formData.representanteLegal.correo"
       class="form-control"
       placeholder="prueba@gmail.com"
+      required
     />
   </div>
 
@@ -49,6 +52,7 @@
       class="form-control"
       placeholder="809-555-5555"
       pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+      required
     />
   </div>
 
@@ -62,6 +66,7 @@
       class="form-control"
       placeholder="001-0000000-0"
       pattern="[0-9]{3}-[0-9]{7}-[0-9]{1}"
+      required
     />
   </div>
 
@@ -75,6 +80,7 @@
       class="form-control"
       placeholder="130-99999"
       pattern="[0-9]{3}-[0-9]{5}"
+      required
     />
   </div>
 
@@ -91,6 +97,7 @@
           value="true"
           v-model="form.formData.representanteLegal.requiereRepresentante"
           class="form-check-input"
+          required
         />
         <label class="form-check-label" for="si">Si</label>
       </div>
@@ -101,6 +108,7 @@
           value="false"
           v-model="form.formData.representanteLegal.requiereRepresentante"
           class="form-check-input"
+          required
         />
         <label class="form-check-label" for="no">No</label>
       </div>
@@ -113,7 +121,7 @@
       <label for="poderRepresentante" class="form-label"
         >Poder de representación</label
       >
-      <input type="file" class="form-control" id="poderRepresentante" />
+      <input type="file" class="form-control" id="poderRepresentante" required />
     </div>
   </div>
 
@@ -122,7 +130,7 @@
     <label for="certificadoRegistroMercantil" class="form-label"
       >Certificado de Registro Mercantil</label
     >
-    <input type="file" class="form-control" id="certificadoRegistroMercantil" />
+    <input type="file" class="form-control" id="certificadoRegistroMercantil"  required/>
   </div>
 </template>
 
