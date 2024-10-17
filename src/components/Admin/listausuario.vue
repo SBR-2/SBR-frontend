@@ -76,48 +76,10 @@
 <script>
 import PanelPrincipal from "./panel-principal.vue";
 import { ref, computed } from "vue";
-import { gql } from "graphql-tag";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import { useToast } from "vue-toastification";
 import router from "../../router/router";
-
-const GET_USUARIOS = gql`
-  query get {
-    usuarios {
-      items {
-        usuarioId
-        nombre
-        correo
-        entidad {
-          nombre
-        }
-        rol {
-          rol1
-        }
-        estado
-        fechaCreacion
-      }
-    }
-  }
-`;
-
-const DELETE_USUARIO = gql`
-  mutation EliminarUsuario($usuarioId: Int!) {
-    deleteUsuario(input: { usuarioId: $usuarioId }) {
-      usuario {
-        correo
-        entidadId
-        estado
-        fechaCreacion
-        hash
-        nombre
-        rolId
-        salt
-        usuarioId
-      }
-    }
-  }
-`;
+import { GET_USUARIOS, DELETE_USUARIO } from "../../controllers/graphql/queries/userQueries";
 
 export default {
   components: {

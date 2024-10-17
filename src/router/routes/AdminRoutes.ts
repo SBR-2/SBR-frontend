@@ -7,8 +7,8 @@ const adminRoutes: Array<RouteRecordRaw> = [
         component: () => import('../../components/Admin/panel-principal.vue')
     },
     {
-        path: '/dashboard',
-        name: 'dashboard',
+        path: '/admin/dashboard',
+        name: 'AdminDashboard',
         component: () => import('../../components/Admin/dashboard.vue')
     },
     {

@@ -36,11 +36,11 @@ const InspectorRoutes: Array<RouteRecordRaw> = [
     name: 'EvaluacionRegistroSanitarioPart3',
     component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart3.vue')
   },
-  {	
-    path: '/Prueba',
-    name: 'Prueba',
-    component: () => import('../../components/Inspector/Prueba.vue')
-  },
+  // {	
+  //   path: '/Prueba',
+  //   name: 'Prueba',
+  //   component: () => import('../../components/Inspector/Prueba.vue')
+  // },
   // ...otras rutas
 ];
 export default InspectorRoutes;
