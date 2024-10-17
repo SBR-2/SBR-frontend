@@ -29,7 +29,11 @@
           </tr>
         </thead>
         <tbody>
+          <tr v-if="filteredSolicitudes.length === 0">
+            <td colspan="7" class="text-center">No hay fichas sin asignar</td>
+          </tr>
           <tr
+            v-else
             v-for="solicitud in filteredSolicitudes"
             :key="solicitud.fichaId"
           >
@@ -49,11 +53,11 @@
                   {{ solicitud.inspectorId ? 'Cambiar Inspector' : 'Asignar Inspector' }}
                 </option>
                 <option
-                  v-for="inspector in inspectores"
+                  v-for="inspector in inspectores.filter(i => i.estado === 'true')"
                   :key="inspector.usuarioId"
                   :value="inspector.usuarioId"
                 >
-                {{ inspector.nombre }} - {{ inspector.estado === "true" ? 'Activo' : 'Inactivo' }}
+                  {{ inspector.nombre }}
                 </option>
               </select>
               <span v-if="solicitud.isAssigning" class="loading-text">
@@ -72,62 +76,10 @@
 <script>
 import PanelPrincipal from './panel-principal.vue';
 import { ref, watch, computed, defineComponent } from 'vue';
-import gql from 'graphql-tag';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { useToast } from 'vue-toastification';
-
-const GET_FICHAS_USUARIO = gql`
-  query inspector {
-    fichas(skip: null, take: null, where: {}, order: null) {
-      items {
-        fichaId
-        inspectorId
-        solicitud {
-          fechaCreacion
-          producto {
-            nombre
-            usuario {
-              nombre
-              correo
-              entidad {
-                nombre
-                direccion
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-const GET_ALL_INSPECTORES = gql`
-  query viewInspector {
-  usuarios(where: { rolId: { eq: "3" } }) {
-    items {
-      usuarioId
-      nombre
-      estado
-    }
-  }
-}
-`;
-
-const UPDATE_FICHA = gql`
-  mutation updateFicha($input: UpdateFichaInput!) {
-    updateFicha(input: $input) {
-      ficha {
-        estado
-        fichaId
-        inspectorId
-        inspector {
-          estado
-          nombre
-        }
-      }
-    }
-  }
-`;
+import { GET_FICHAS_USUARIO, GET_ALL_INSPECTORES } from '../../controllers/graphql/queries/adminQueries';
+import { UPDATE_FICHA } from '../../controllers/graphql/mutations/admin/adminMutations';
 
 export default defineComponent({
   components: {
@@ -238,20 +190,24 @@ export default defineComponent({
 
     // Computed para filtrar las solicitudes
     const filteredSolicitudes = computed(() => {
+      return solicitudes.value
+        .filter(solicitud => !solicitud.inspectorId) // Exclude assigned requests
+        .filter(solicitud => solicitudMatchesSearch(solicitud)); // Apply the search filter
+    });
+
+    const solicitudMatchesSearch = (solicitud) => {
       if (!searchTerm.value) {
-        return solicitudes.value;
+        return true;
       }
       const term = searchTerm.value.toLowerCase();
-      return solicitudes.value.filter((solicitud) => {
-        return (
-          solicitud.nombre.toLowerCase().includes(term) ||
-          solicitud.correo.toLowerCase().includes(term) ||
-          solicitud.entidadNombre.toLowerCase().includes(term) ||
-          solicitud.direccion.toLowerCase().includes(term) ||
-          solicitud.productoNombre.toLowerCase().includes(term)
-        );
-      });
-    });
+      return (
+        solicitud.nombre.toLowerCase().includes(term) ||
+        solicitud.correo.toLowerCase().includes(term) ||
+        solicitud.entidadNombre.toLowerCase().includes(term) ||
+        solicitud.direccion.toLowerCase().includes(term) ||
+        solicitud.productoNombre.toLowerCase().includes(term)
+      );
+    };
 
     // Función para formatear la fecha
     const formatDate = (dateString) => {
