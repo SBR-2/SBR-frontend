@@ -92,7 +92,7 @@
   crearUsuario({input:{
       nombre: userData.value.nombre,
       correo: userData.value.correo,
-      rolId: '3', // Aseguramos que sea un númeroq
+      rolId: userData.value.rolId.toString(), 
       entidadId: 1, 
       password: '1234',
   }})
