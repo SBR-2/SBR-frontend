@@ -5,7 +5,7 @@
     <div v-for="n in form.riesgo" :key="n">
       <div class="mb-3">
         <label :for="'file' + n">Muestra biológica</label>
-        <input class="form-control" type="file" :id="'file' + (n + 1)" required />
+        <input class="form-control" type="file" :id="'file' + (n + 1)" @change="handleFileChange(n, $event)"  required />
       </div>
     </div>
 
@@ -57,6 +57,17 @@ export default {
   name: "InformacionMuestras",
   setup() {
     const form = useProductFormStore();
+
+    const handleFileChange = (index, event) => {
+      // Agrega el archivo al array correspondiente
+      const file = event.target.files[0];
+
+      if (file) {
+        // Asegúrate de que el índice es correcto para tu lógica
+        form.archivos.certificado[index] = file;
+      }
+    };
+
     return { form };
   },
 };

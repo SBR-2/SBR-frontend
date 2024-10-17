@@ -121,7 +121,7 @@
       <label for="poderRepresentante" class="form-label"
         >Poder de representación</label
       >
-      <input type="file" class="form-control" id="poderRepresentante" required />
+      <input type="file" class="form-control" id="poderRepresentante" @change="handlePoder" required />
     </div>
   </div>
 
@@ -130,7 +130,7 @@
     <label for="certificadoRegistroMercantil" class="form-label"
       >Certificado de Registro Mercantil</label
     >
-    <input type="file" class="form-control" id="certificadoRegistroMercantil"  required/>
+    <input type="file" class="form-control" id="certificadoRegistroMercantil" @change="handleCertificado" required/>
   </div>
 </template>
 
@@ -140,7 +140,16 @@ export default {
   name: "InformacionRepresentante",
   setup() {
     const form = useProductFormStore();
-    return { form };
+
+    const handlePoder = (event) => {
+      form.archivos.poderRepresentante = event.target.files[0];
+    };
+
+    const handleCertificado = (event) => {
+      form.archivos.certificadoRegistroMercantil = event.target.files[0];
+    };
+
+    return { form, handlePoder, handleCertificado };
   },
 };
 </script>

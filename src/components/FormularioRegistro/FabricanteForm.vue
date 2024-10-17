@@ -57,17 +57,7 @@
     <label for="certificadoBuenasPracticas" class="form-label"
       >Certificado de Buenas Prácticas</label
     >
-    <input type="file" class="form-control" id="certificadoBuenasPracticas" />
-  </div>
-
-  <div v-if="form.formData.subcategoria === 'yogurt' || 'papas'">
-    <!-- Certificado de Registro Mercantil -->
-    <div class="mb-3">
-      <label for="certificadoHabilitacion" class="form-label"
-        >Certificado de Habilitación de Establecimiento</label
-      >
-      <input type="file" class="form-control" id="certificadoHabilitacion" />
-    </div>
+    <input type="file" class="form-control" id="certificadoBuenasPracticas" @change="handleBuenas"/>
   </div>
 
   <div v-if="!form.formData.fabricante.esTitular">
@@ -76,7 +66,7 @@
       <label for="contratoFabricante" class="form-label"
         >Contrato de Fabricación</label
       >
-      <input type="file" class="form-control" id="contratoFabricante" />
+      <input type="file" class="form-control" id="contratoFabricante" @change="handleContrato" />
     </div>
   </div>
 
@@ -115,7 +105,7 @@
       <label for="certificadoExportacion" class="form-label"
         >Certificado de Exportación</label
       >
-      <input type="file" class="form-control" id="certificadoExportacion" />
+      <input type="file" class="form-control" id="certificadoExportacion" @change="handleExportacion"/>
     </div>
 
     <!-- Select HACCP -->
@@ -166,7 +156,20 @@ export default {
   name: "InformacionFabricante",
   setup() {
     const form = useProductFormStore();
-    return { form };
+
+    const handleBuenas= (event) => {
+      form.archivos.certificadoBuenasPracticas = event.target.files[0];
+    };
+
+    const handleExportacion = (event) => {
+      form.archivos.certificadoExportacion = event.target.files[0];
+    };
+
+    const handleContrato = (event) => {
+      form.archivos.contratoFabricante = event.target.files[0];
+    };
+
+    return { form, handleBuenas, handleExportacion, handleContrato };
   },
 };
 </script>

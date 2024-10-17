@@ -10,8 +10,12 @@
       class="form-select"
       required
     >
-    <option disabled value="">Seleccione el estado físico</option>
-    <option v-for="estado in form.estadoFisicos" :key="estado.estadoFisicoId" :value="estado.estadoFisico1">
+      <option disabled value="">Seleccione el estado físico</option>
+      <option
+        v-for="estado in form.estadoFisicos"
+        :key="estado.estadoFisicoId"
+        :value="estado.estadoFisicoId"
+      >
         {{ estado.estadoFisico1 }}
       </option>
     </select>
@@ -28,7 +32,11 @@
       required
     >
       <option disabled value="">Seleccione la categoría</option>
-      <option v-for="cats in form.categorias" :key="cats.riesgoCategoriaId" :value="cats.riesgoCategoriaId">
+      <option
+        v-for="cats in form.categorias"
+        :key="cats.riesgoCategoriaId"
+        :value="cats.riesgoCategoriaId"
+      >
         {{ cats.riesgoCategoria }}
       </option>
     </select>
@@ -45,7 +53,11 @@
       required
     >
       <option disabled value="">Seleccione la subcategoría</option>
-      <option v-for="cats in form.subcategorias" :key="cats.subcategoriaId" :value="cats.subcategoriaId">
+      <option
+        v-for="cats in form.subcategorias"
+        :key="cats.subcategoriaId"
+        :value="cats.subcategoriaId"
+      >
         {{ cats.subcategoria }}
       </option>
     </select>
@@ -81,7 +93,6 @@
           id="no"
           value="false"
           v-model="form.formData.unIngrediente"
-          onclick="form.debug"
           class="form-check-input"
           required
         />
@@ -93,18 +104,24 @@
   <div v-if="form.formData.unIngrediente === 'false'">
     <label class="mt-4">Listado de Ingredientes</label>
     <div class="mb-3">
-      <input type="file" class="form-control" id="ingredientsList" required>
+      <input type="file" class="form-control" id="ingredientsList" @change="handleLista" required />
     </div>
   </div>
 
   <label>Descripción de Elaboración</label>
   <div class="mb-3">
-    <input type="file" class="form-control" id="elaborationDescription" required/>
+    <input
+      type="file"
+      class="form-control"
+      id="elaborationDescription"
+      @change="handleElaboracion"
+      required
+    />
   </div>
 
   <label>Arte de Etiqueta</label>
   <div class="mb-3">
-    <input type="file" class="form-control" id="labelArt" required/>
+    <input type="file" class="form-control" id="labelArt" @change="handleArte" required />
   </div>
 </template>
 
@@ -120,10 +137,21 @@ export default {
     onMounted(() => {
       form.fetchEstadoFisicos();
       form.fetchCategorias();
-});
+    });
 
+    const handleLista = (event) => {
+      form.archivos.listaIngredientes = event.target.files[0];
+    };
 
-    return { form };
+    const handleElaboracion = (event) => {
+      form.archivos.descripcionElaboracion = event.target.files[0];
+    };
+
+    const handleArte = (event) => {
+      form.archivos.arteEtiqueta = event.target.files[0];
+    };
+
+    return { form, handleLista, handleElaboracion, handleArte };
   },
 };
 </script>

@@ -27,12 +27,12 @@
     />
   </div>
 
-  <!-- Certificado de Registro Mercantil -->
+  <!-- Permiso sanitario -->
   <div class="mb-3">
     <label for="permisoSanitario" class="form-label"
       >Permiso Sanitario</label
     >
-    <input type="file" class="form-control" id="permisoSanitario"  required/>
+    <input type="file" class="form-control" id="permisoSanitario" @change="handleFileChange" required/>
   </div>
 </template>
 
@@ -42,7 +42,12 @@ export default {
   name: "InformacionAlmacenador",
   setup() {
     const form = useProductFormStore();
-    return { form };
+
+    const handleFileChange = (event) => {
+      form.archivos.permisoSanitario = event.target.files[0];
+    };
+
+    return { form, handleFileChange };
   },
 };
 </script>

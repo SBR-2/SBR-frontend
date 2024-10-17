@@ -3,18 +3,7 @@ import { ref, reactive, computed } from "vue";
 import { useToast } from "vue-toastification";
 import { useRouter } from "vue-router";
 import apolloClient from "../../src/apolloClient"; // Asegúrate de ajustar la ruta
-import { useMutation } from "@vue/apollo-composable";
 import gql from "graphql-tag";
-
-const LOGIN_MUTATION = gql`
-  mutation Login($input: LoginInput!) {
-    login(input: $input) {
-      loginResponse {
-        token
-      }
-    }
-  }
-`;
 
 const CREATE_PRODUCT = gql`
   mutation producto($input: AddProductoInput!) {
@@ -25,6 +14,39 @@ const CREATE_PRODUCT = gql`
     }
   }
 `;
+
+const CREATE_PRODUCT_ENTIDAD = gql`
+  mutation productoEntidad($input: AddEntidadInput!) {
+    addEntidad(input: $input) {
+      entidad {
+        entidadId
+      }
+    }
+  }
+`;
+
+const GET_USER = gql`
+mutation tokenMutation($input: String!) {
+  userIdByToken(input: { token: $input }) {
+    getUserIdResponse {
+      userId
+    }
+  }
+}
+`;
+
+const UPLOAD_FILE = gql`
+mutation upload($archivo: AddDocumentoInput!) {
+  addDocumento(documentoInput: $archivo) {
+    documento {
+      documentoId
+      estado
+      ruta
+      solicitudId
+      tipoDocumentoId
+    }
+  }
+}`;
 
 export const useProductFormStore = defineStore("productForm", () => {
   const toast = useToast();
@@ -52,33 +74,65 @@ export const useProductFormStore = defineStore("productForm", () => {
     },
     personaContacto: {
       nombre: "",
+      direccion: "",
       telefono: "",
       email: "",
+      cedula: "",
+      rnc: "",
     },
     titular: {
       nombre: "",
       direccion: "",
       telefono: "",
       email: "",
+      cedula: "",
+      rnc: "",
     },
     almacenador: {
       nombre: "",
       direccion: "",
+      telefono: "",
+      email: "",
+      cedula: "",
+      rnc: "",
     },
     fabricante: {
       nombre: "",
       direccion: "",
-      pais: "",
+      telefono: "",
+      email: "",
+      cedula: "",
+      rnc: "",
       esTitular: true,
       esExportador: false,
     },
     acondicionador: {
       nombre: "",
       direccion: "",
-      pais: "",
+      telefono: "",
+      email: "",
+      cedula: "",
+      rnc: "",
       esFabricante: true,
     },
   });
+
+  const archivos = reactive<any>({
+    onapi: null,
+    certificadoVentas : null,
+    listaIngredientes: null,
+    descripcionElaboracion: null,
+    arteEtiqueta: null,
+    especificacionesEnvase: null,
+    permisoSanitario: null,
+    certificadoBuenasPracticas: null,
+    certificadoExportacion: null,
+    contratoFabricante: null,
+    poderRepresentante: null,
+    certificadoRegistroMercantil: null,
+    contratoAcondicionador: null,
+    muestras:[{}]
+  }); // Lista para almacenar los archivos adjuntos
 
   const factores = reactive({
     haccp: "",
@@ -90,6 +144,62 @@ export const useProductFormStore = defineStore("productForm", () => {
 
   const estadoFisicos = ref([]); // Lista para almacenar los valores de estado físico
 
+  async function uploadFile() {
+    console.log("Subiendo archivo:", archivos.certificado);
+    try {
+      const { data } = await apolloClient.mutate({
+        mutation: UPLOAD_FILE,
+        variables: {
+          archivo : {
+            archivo: archivos.certificado,
+            solicitudId: 2,
+            tipoDocumentoId: 13,
+            comentarioDocumentos: [1,2]
+            }
+        },
+      });
+
+      console.log("Archivo subido:", data);
+    } catch (err) {
+      console.error("Error al subir archivo:", err);
+    }
+  }
+
+  async function getUserIdByToken() {
+    const token = localStorage.getItem("accessToken") || "null";
+
+    const tokenWithNoQuotes = token.replace(/['"]+/g, '');
+    console.log("Token sin comillas:", tokenWithNoQuotes);
+
+    const { data } = await apolloClient.mutate({
+      mutation: GET_USER,
+      variables: {
+        input:tokenWithNoQuotes,
+      },
+    });
+    return data.userIdByToken.getUserIdResponse.userId;
+  }
+
+  
+  async function createProductEntidad() {
+    const enti = {
+      cedula: "3434",
+      correo: null,
+      direccion: null,
+      nombre: "hola",
+      rnc: null,
+      telefono: null,
+    };
+
+    const { data } = await apolloClient.mutate({
+      mutation: CREATE_PRODUCT_ENTIDAD,
+      variables: {
+        input: enti,
+      },
+    });
+
+    console.log("Entidad creada:", data);
+  }
   // Función para obtener los estados físicos
   async function fetchEstadoFisicos() {
     try {
@@ -125,147 +235,31 @@ export const useProductFormStore = defineStore("productForm", () => {
     factoresMuestras.value = await fetchFactores(6);
   }
 
-  createProduct();
-
-  async function createProduct() {
+  async function createProduct(formData: any) {
     const productInputForm = {
       envasePrimario: formData.envasePrimario,
       estado: "Activo",
       estadoFisicoId: formData.estadoFisico,
       marca: formData.marca,
       materialEmpaque: formData.materialEmpaque,
-      nacional: formData.origen,
-      presentacion: formData.presentacion,
+      nacional: formData.origen === "nacional",
       nombre: formData.nombreProducto,
+      origen: formData.origen === "nacional" ? "Nacional" : "Importado",
       presentaciones: formData.presentacion,
-      subcategoriaId: formData.subcategoria,
-      unIngrediente: formData.unIngrediente,
-      productoEntidades: [
-        {
-          cedula: formData.representanteLegal.cedula,
-          direccion: formData.representanteLegal.direccion,
-          nombre: formData.representanteLegal.nombre,
-          rnc: formData.representanteLegal.rnc,
-          telefono: formData.representanteLegal.telefono,
-          email: formData.representanteLegal.email,
-          relacion: {
-            relacionId: 2,
-          },
-        },
-        {
-          nombre: formData.personaContacto.nombre,
-          telefono: formData.personaContacto.telefono,
-          email: formData.personaContacto.email,
-          relacion: {
-            relacionId: 4,
-          },
-        },
-        {
-          nombre: formData.titular.nombre,
-          telefono: formData.titular.telefono,
-          email: formData.titular.email,
-          direccion: formData.titular.direccion,
-          relacion: {
-            relacionId: 3,
-          },
-        },
-        {
-          nombre: formData.almacenador.nombre,
-          direccion: formData.almacenador.direccion,
-        },
-        {
-          nombre: formData.fabricante.nombre,
-          direccion: formData.fabricante.direccion,
-          relacion: {
-            relacionId: 6,
-          },
-        },
-        {
-          nombre: formData.acondicionador.nombre,
-          direccion: formData.acondicionador.direccion,
-          relacion: {
-            relacionId: 5,
-          },
-        },
-      ],
+      riesgoSubcategoriaId: formData.subcategoria,
+      unIngrediente: formData.unIngrediente === "true",
+      usuarioId: 35,
+      productoEntidades: [{ entidadId: 1, productoId: 3, relacionId: 1 }],
     };
 
-    const productInput = {
-      usuarioId: 35, // ID de usuario
-      envasePrimario: "Botella de plástico",
-      estado: "Activo",
-      estadoFisicoId: 1, // Por ejemplo, 1 para sólido
-      marca: "MarcaPrueba",
-      materialEmpaque: "Plástico",
-      nacional: "true", // true para nacional, false para importado
-      presentacion: "500 ml",
-      nombre: "Producto de Prueba",
-      presentaciones: "500 ml",
-      subcategoriaId: 10, // Un valor de ejemplo para subcategoría
-      unIngrediente: "false", // false si tiene más de un ingrediente
-      productoEntidades: [
-        {
-          cedula: "12345678901",
-          direccion: "Calle Falsa 123, Ciudad de Prueba",
-          nombre: "Representante Legal Prueba",
-          rnc: "123456789",
-          telefono: "8091234567",
-          email: "representante@prueba.com",
-          relacion: {
-            relacionId: 2,
-          },
-        },
-        {
-          nombre: "Contacto Prueba",
-          telefono: "8099876543",
-          email: "contacto@prueba.com",
-          relacion: {
-            relacionId: 4,
-          },
-        },
-        {
-          nombre: "Titular Prueba",
-          telefono: "8091112233",
-          email: "titular@prueba.com",
-          direccion: "Avenida Prueba 45, Ciudad Ejemplo",
-          relacion: {
-            relacionId: 3,
-          },
-        },
-        {
-          nombre: "Almacenador Prueba",
-          direccion: "Parque Industrial 123, Ciudad de Prueba",
-        },
-        {
-          nombre: "Fabricante Prueba",
-          direccion: "Calle Industria 987, Ciudad de Prueba",
-          relacion: {
-            relacionId: 6,
-          },
-        },
-        {
-          nombre: "Acondicionador Prueba",
-          direccion: "Zona Industrial 456, Ciudad de Prueba",
-          relacion: {
-            relacionId: 5,
-          },
-        },
-      ],
-    };
-
-    const {mutate: addProduct, error} = useMutation(CREATE_PRODUCT, {
+    const { data } = await apolloClient.mutate({
+      mutation: CREATE_PRODUCT,
       variables: {
         input: productInputForm,
       },
     });
 
-    try {
-      const response = await addProduct();
-      console.log("Producto creado:", response);
-    } catch (error) {
-      console.error("Producto a crear:", error);
-    }
-    console.log("Producto:", error);
+    console.log("Producto creado:", data);
   }
 
   async function fetchFactores(factorId: number) {
@@ -509,6 +503,7 @@ export const useProductFormStore = defineStore("productForm", () => {
   }
 
   return {
+    archivos,
     factoresHACCP,
     factoresPoblacion,
     factoresProduccion,
@@ -527,6 +522,7 @@ export const useProductFormStore = defineStore("productForm", () => {
     currentForm,
     fetchEstadoFisicos,
     changeSubcategoria,
+    uploadFile,
     initFactores,
     fetchCategorias,
     debug,

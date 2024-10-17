@@ -64,7 +64,7 @@
       <label for="contratoAcondicionador" class="form-label"
         >Contrato de Acondicionamiento</label
       >
-      <input type="file" class="form-control" id="contratoAcondicionador" required />
+      <input type="file" class="form-control" id="contratoAcondicionador" @change="handleContrato" required />
     </div>
   </div>
 </template>
@@ -75,7 +75,12 @@ export default {
   name: "InformacionAcondicionador",
   setup() {
     const form = useProductFormStore();
-    return { form };
+
+    const handleContrato = (event) => {
+      form.archivos.contratoAcondicionador = event.target.files[0];
+    };
+
+    return { form, handleContrato };
   },
 };
 </script>

@@ -21,6 +21,8 @@
       type="file"
       class="form-control"
       id="especificacionesEnvasePrimario"
+      @change="handleFileChange"
+      accept="application/pdf"
       required
     />
   </div>
@@ -60,7 +62,11 @@ export default {
   setup() {
     const form = useProductFormStore();
 
-    return { form };
+    const handleFileChange = (event) => {
+      form.archivos.especificacionesEnvase = event.target.files[0];
+    };
+
+    return { form, handleFileChange };
   },
 };
 </script>

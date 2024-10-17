@@ -34,7 +34,7 @@
         <input
           type="radio"
           id="nacional"
-          value="nacional"
+          value="true"
           v-model="form.formData.origen"
           class="form-check-input"
           required
@@ -45,7 +45,7 @@
         <input
           type="radio"
           id="extranjero"
-          value="extranjero"
+          value="false"
           v-model="form.formData.origen"
           class="form-check-input"
           required
@@ -65,14 +65,9 @@
       class="form-control"
       id="brandCertificate"
       accept=".pdf"
+      @change="handleOnapi"
       required
     />
-    <!-- @change="onFileChange($event, 'brand')" -->
-    <!--
-                  <div v-if="files.brand" class="mt-2">
-                    Archivo seleccionado: {{ files.brand.name }}
-                  </div>
-                  -->
   </div>
 
   <div class="mb-3">
@@ -84,29 +79,28 @@
       class="form-control"
       id="salesCertificate"
       accept=".pdf"
+      @change="handleSales"
       required
     />
   </div>
-    <!-- @change="onFileChange($event, 'brand')" -->
-    <!--
-                  <div v-if="files.brand" class="mt-2">
-                    Archivo seleccionado: {{ files.brand.name }}
-                  </div>
-                  -->
-      <!-- Select INAIBE   -->
-      <div class="mb-3">
-        <label for="inaibe" class="form-label">INAIBE</label>
-        <select
-          id="inaibe"
-          v-model="form.factores.poblacion"
-          class="form-select"
-          required
-        >
-          <option value="" disabled selected>Seleccione una opción</option>
-          <option v-for="option in form.factoresPoblacion" :key="option.opcionId" :value="option.opcionId">
-            {{ option.detalle }}
-          </option>
-        </select>
+  <!-- Select INAIBE   -->
+  <div class="mb-3">
+    <label for="inaibe" class="form-label">INAIBE</label>
+    <select
+      id="inaibe"
+      v-model="form.factores.poblacion"
+      class="form-select"
+      required
+    >
+      <option value="" disabled selected>Seleccione una opción</option>
+      <option
+        v-for="option in form.factoresPoblacion"
+        :key="option.opcionId"
+        :value="option.opcionId"
+      >
+        {{ option.detalle }}
+      </option>
+    </select>
   </div>
 </template>
 
@@ -117,13 +111,23 @@ import { useProductFormStore } from "../../stores/productFormLogic";
 export default {
   name: "InformacionGeneral",
   setup() {
-    const form = useProductFormStore(); 
+    const form = useProductFormStore();
 
     onMounted(() => {
-         form.initFactores();
+      form.initFactores();
     });
 
-    return { form };
+    const handleOnapi = (event) => {
+      form.archivos.onapi = event.target.files[0];
+    };
+
+    const handleSales = (event) => {
+      form.archivos.certificadoVentas = event.target.files[0];
+    };
+
+
+
+    return { form, handleOnapi,handleSales };
   },
 };
 </script>
@@ -132,5 +136,4 @@ export default {
 h2 {
   margin-bottom: 1.5rem;
 }
-
 </style>
