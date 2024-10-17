@@ -1,164 +1,312 @@
 <template>
   <div class="container">
-    <div class="row justify-content-center mt-5">
-      <div class="col-md-6">
-        <h2 class="text-center">Editar Usuario</h2>
-        <form @submit.prevent="submitForm" v-if="!loading">
-          <div class="mb-3">
-            <label for="nombre" class="form-label d-flex">Nombre*</label>
-            <input type="text" class="form-control" id="nombre" v-model="formData.nombre" required>
-          </div>
-          
-
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="rol" class="form-label d-flex">Rol*</label>
-              <select class="form-select" id="rol" v-model="formData.rol" required>
-                <option value="Evaluador">Evaluador</option>
-                <option value="Inspector">Inspector</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label for="correo" class="form-label d-flex">Correo*</label>
-            <input type="email" class="form-control" id="correo" v-model="formData.correo" required>
-          </div>
-
-
-          <div class="text-center">
-            <button type="submit" class="btn btn-primary w-50" :disabled="updateLoading">
-              {{ updateLoading ? 'Actualizando...' : 'Modificar' }}
-            </button>
-          </div>
-        </form>
-        <div v-else class="text-center">
-          <p>Cargando datos del usuario...</p>
-        </div>
-        <div v-if="message" :class="['alert', message.type === 'success' ? 'alert-success' : 'alert-danger', 'mt-3']">
-          {{ message.text }}
-        </div>
+    <div>
+      <div class="user-list-container">
+        <h4 class="titulo d-flex">Asignación Inspección</h4>
+        <!-- Barra de búsqueda -->
+        <input
+          type="text"
+          v-model="searchTerm"
+          placeholder="Buscar"
+          class="search-bar"
+        />
       </div>
     </div>
-    <panel-principal />
+    <!-- Manejo de estados de carga y error para fichas e inspectores -->
+    <div v-if="loadingFichas || loadingInspectores">
+      <p>Cargando datos...</p>
+    </div>
+    <div v-else-if="errorFichas || errorInspectores">
+      <p>
+        Error al cargar los datos:
+        {{ errorFichas?.message || errorInspectores?.message }}
+      </p>
+    </div>
+    <!-- Tabla para visualizar las solicitudes -->
+    <div v-else>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Empresa</th>
+            <th>Dirección</th>
+            <th>Producto</th>
+            <th>Fecha de Solicitud</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="solicitud in filteredSolicitudes"
+            :key="solicitud.fichaId"
+          >
+            <td>{{ solicitud.nombre }}</td>
+            <td>{{ solicitud.correo }}</td>
+            <td>{{ solicitud.entidadNombre }}</td>
+            <td>{{ solicitud.direccion }}</td>
+            <td>{{ solicitud.productoNombre }}</td>
+            <td>{{ formatDate(solicitud.fechaSolicitud) }}</td>
+            <td class="acciones-cell">
+              <select
+                v-model="solicitud.selectedInspectorId"
+                @change="asignarInspector(solicitud)"
+                :disabled="solicitud.isAssigning"
+              >
+                <option disabled value="">
+                  {{ solicitud.inspectorId ? 'Cambiar Inspector' : 'Asignar Inspector' }}
+                </option>
+                <option
+                  v-for="inspector in inspectores"
+                  :key="inspector.inspectorId"
+                  :value="inspector.inspectorId"
+                >
+                  {{ inspector.correo }} - {{ inspector.estado }}
+                </option>
+              </select>
+              <span v-if="solicitud.isAssigning" class="loading-text">
+                Asignando...
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Componente PanelPrincipal -->
+    <PanelPrincipal />
   </div>
 </template>
 
 <script>
-import { ref, onMounted, watch, reactive } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import PanelPrincipal from './panel-principal.vue';
+import { ref, watch, computed, defineComponent } from 'vue';
+import { gql } from 'graphql-tag';
 import { useQuery, useMutation } from '@vue/apollo-composable';
-import gql from 'graphql-tag';
+import { useToast } from 'vue-toastification';
 
-export default {
+// Consulta para obtener fichas
+const GET_FICHAS_INSPECTORES = gql`
+  query inspector {
+    fichas(skip: null, take: null, where: {}, order: null) {
+      items {
+        fichaId
+        solicitud {
+          fechaCreacion
+          producto {
+            nombre
+            usuario {
+              nombre
+              correo
+              entidad {
+                nombre
+                direccion
+              }
+            }
+          }
+        }
+        inspectorId
+        inspector {
+          correo
+          estado
+          rolId
+          usuarioId
+          nombre
+        }
+      }
+    }
+  }
+`;
+
+// Consulta para obtener todos los inspectores
+const GET_ALL_INSPECTORES = gql`
+  query getAllInspectores {
+    inspectores {
+      inspectorId
+      correo
+      estado
+      rolId
+      usuarioId
+      nombre
+    }
+  }
+`;
+
+// Mutación para actualizar una ficha
+const UPDATE_FICHA = gql`
+  mutation updateFicha($input: UpdateFichaInput!) {
+    updateFicha(input: $input) {
+      ficha {
+        estado
+        fichaId
+        inspectorId
+        inspector {
+          estado
+          nombre
+        }
+      }
+    }
+  }
+`;
+
+export default defineComponent({
   components: {
     PanelPrincipal,
   },
   setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const usuarioId = route.params.id;
+    const searchTerm = ref('');
+    const toast = useToast();
 
-    const formData = reactive({
-      nombre: '',
-      rol: '',
-      estado: '',
-      correo: '',
-      empresa: ''
+    // Consulta para obtener fichas
+    const {
+      result: resultFichas,
+      loading: loadingFichas,
+      error: errorFichas,
+      refetch: refetchFichas,
+    } = useQuery(GET_FICHAS_INSPECTORES);
+
+    // Consulta para obtener todos los inspectores
+    const {
+      result: resultInspectores,
+      loading: loadingInspectores,
+      error: errorInspectores,
+    } = useQuery(GET_ALL_INSPECTORES);
+
+    const solicitudes = ref([]);
+    const inspectores = ref([]);
+
+    // Definir la mutación para actualizar una ficha
+    const { mutate: updateFicha } = useMutation(UPDATE_FICHA, {
+      onCompleted: () => {
+        // Refrescar la consulta después de la mutación
+        refetchFichas();
+        toast.success('Inspector asignado correctamente.');
+      },
+      onError: (mutationError) => {
+        // Manejar errores globalmente si es necesario
+        console.error(mutationError);
+      },
     });
 
-    const message = ref(null);
+    // Procesar los resultados de las consultas
+    watch(
+      () => resultFichas.value,
+      (newValue) => {
+        if (newValue && newValue.fichas && newValue.fichas.items) {
+          solicitudes.value = newValue.fichas.items
+            .map((ficha) => {
+              const solicitud = ficha.solicitud;
+              const usuario = solicitud.producto.usuario;
+              const producto = solicitud.producto;
+              if (usuario) {
+                return {
+                  fichaId: ficha.fichaId,
+                  nombre: usuario.nombre,
+                  correo: usuario.correo,
+                  entidadNombre: usuario.entidad?.nombre || 'Sin entidad',
+                  direccion: usuario.entidad?.direccion || 'Sin dirección',
+                  fechaSolicitud: solicitud.fechaCreacion,
+                  productoNombre: producto?.nombre || 'Sin producto',
+                  inspectorId: ficha.inspectorId,
+                  inspector: ficha.inspector,
+                  selectedInspectorId: ficha.inspectorId || '',
+                  isAssigning: false,
+                };
+              } else {
+                return null;
+              }
+            })
+            .filter((item) => item !== null);
+        }
+      },
+      { immediate: true }
+    );
 
-    const GET_USUARIO = gql`
-      query getUsuario ($userId: Int!){
-    usuarios(where: { usuarioId: {eq:$userId}}) {
-  items {
-    correo
-    entidadId
-    estado
-    fechaCreacion
-    nombre
-    rolId
-    usuarioId
-  }
-}
-}
-`;
+    watch(
+      () => resultInspectores.value,
+      (newValue) => {
+        if (newValue && newValue.inspectores) {
+          inspectores.value = newValue.inspectores;
+        }
+      },
+      { immediate: true }
+    );
 
-    const { onResult ,loading, error} = useQuery(GET_USUARIO, { userId: 44 } );
-    onResult((response)=>{
-      console.log(response.data.usuarios.items[0]);
-      response.data.usuarios.items.forEach((usuario) => {
-        formData.value.nombre = usuario.nombre;
-        formData.value.correo = usuario.correo;
-        formData.value.rol = usuario.rolId;
+    // Computed para filtrar las solicitudes
+    const filteredSolicitudes = computed(() => {
+      if (!searchTerm.value) {
+        return solicitudes.value;
+      }
+      const term = searchTerm.value.toLowerCase();
+      return solicitudes.value.filter((solicitud) => {
+        return (
+          solicitud.nombre.toLowerCase().includes(term) ||
+          solicitud.correo.toLowerCase().includes(term) ||
+          solicitud.entidadNombre.toLowerCase().includes(term) ||
+          solicitud.direccion.toLowerCase().includes(term) ||
+          solicitud.productoNombre.toLowerCase().includes(term)
+        );
       });
     });
-  
-    
-    
 
-    const UPDATE_USUARIO = gql`
-      mutation updateUsuario($usuarioId: Int!, $input: UsuarioInput!) {
-        updateUsuario(usuarioId: $usuarioId, input: $input) {
-          usuario {
-            usuarioId
-            nombre
-            correo
-            estado
-            rolId
-            entidad {
-              nombre
-            }
-          }
-        }
+    // Función para formatear la fecha
+    const formatDate = (dateString) => {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('es-ES', options);
+    };
+
+    // Función para asignar el inspector seleccionado a la ficha
+    const asignarInspector = async (solicitud) => {
+      if (!solicitud.selectedInspectorId) {
+        toast.error('Por favor, seleccione un inspector.');
+        return;
       }
-    `;
 
-    const { mutate: updateUsuario, loading: updateLoading, error: updateError } = useMutation(UPDATE_USUARIO);
+      solicitud.isAssigning = true;
 
-    const submitForm = async () => {
-      message.value = null;
+      const input = {
+        inspectorId: parseInt(solicitud.selectedInspectorId),
+        aprobadorId: null,
+        calificacion: null,
+        evaluadorId: null,
+        fechaAprobacion: null,
+        fechaRevision: null,
+        fichaId: solicitud.fichaId,
+        matizRiesgo: null,
+        revisorId: null,
+      };
+
       try {
-        const result = await updateUsuario({
-          variables: {
-            usuarioId,
-            input: {
-              nombre: formData.value.nombre,
-              correo: formData.value.correo,
-              rolId: formData.value.rol,
-              estado: formData.value.estado,
-              entidadNombre: formData.value.empresa
-            }
-          }
-        });
-        console.log( result);
-        message.value = { type: 'success', text: 'Usuario actualizado exitosamente' };
-        // Opcional: redirigir a la lista de usuarios después de una actualización exitosa
-        // router.push('/listaUsuarios');
-      } catch (error) {
-        console.error('Error al actualizar usuario:', error);
-        message.value = { type: 'error', text: 'Error al actualizar usuario: ' + error.message };
+        await updateFicha({ variables: { input } });
+        // La notificación de éxito ya se maneja en onCompleted
+      } catch (err) {
+        // Mostrar error usando Toast
+        toast.error(`Error al asignar inspector: ${err.message}`);
+        console.error(err);
+      } finally {
+        solicitud.isAssigning = false;
       }
     };
 
     return {
-      formData,
-      submitForm,
-      loading,
-      updateLoading,
-      message
+      searchTerm,
+      solicitudes,
+      filteredSolicitudes,
+      loadingFichas,
+      loadingInspectores,
+      errorFichas,
+      errorInspectores,
+      formatDate,
+      inspectores,
+      asignarInspector,
     };
-  }
-};
+  },
+});
 </script>
-
 
 <style scoped>
 .container {
   margin-left: 8%;
-  margin-top:10%
+  margin-top: 10%;
 }
 h2 {
   font-weight: 500;
@@ -168,7 +316,8 @@ h2 {
   font-weight: 500;
   color: #333;
 }
-input, select {
+input,
+select {
   background-color: #f1f1f1;
 }
 input::placeholder {
@@ -187,7 +336,7 @@ button:hover {
 }
 @media (max-width: 768px) {
   .container {
-      padding: 20px;
+    padding: 20px;
   }
 }
 </style>
