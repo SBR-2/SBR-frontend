@@ -4,12 +4,72 @@ import { useToast } from "vue-toastification";
 import { useRouter } from "vue-router";
 import apolloClient from "../../src/apolloClient"; // Asegúrate de ajustar la ruta
 import gql from "graphql-tag";
+import { parse } from "path";
+
+const GET_PRODUCTS = gql`
+  query us($usuarioId: Int!) {
+    usuarios(where: { usuarioId: { eq: $usuarioId } }) {
+      items {
+        estado
+        rolId
+        productos {
+          estado
+          marca
+          nombre
+          productoId
+          riesgoSubcategoria {
+            riesgo {
+              riesgo1
+            }
+          }
+          solicituds {
+            riesgoTotal
+            solicitudId
+            estado
+          }
+        }
+        usuarioId
+      }
+    }
+  }
+`;
+
+const CREATE_BPM = gql`
+  mutation ficha($input: Int!) {
+    addFicha(input: { solicitudId: $input }) {
+      ficha {
+        fichaId
+      }
+    }
+  }
+`;
+
+const ADD_FACTORES = gql`
+  mutation addFactores($input: AsignarOpcionesASolicitudInput!) {
+    asignarOpcionesASolicitud(solicitudInput: $input) {
+      solicitud {
+        solicitudId
+      }
+    }
+  }
+`;
+
+const CREATE_REQUEST = gql`
+  mutation muts($input: AddSolicitudInput!) {
+    addSolicitud(solicitudInput: $input) {
+      solicitud {
+        fechaCreacion
+        solicitudId
+      }
+    }
+  }
+`;
 
 const CREATE_PRODUCT = gql`
   mutation producto($input: AddProductoInput!) {
     addProducto(input: $input) {
       producto {
-        usuarioId
+        productoId
       }
     }
   }
@@ -26,27 +86,28 @@ const CREATE_PRODUCT_ENTIDAD = gql`
 `;
 
 const GET_USER = gql`
-mutation tokenMutation($input: String!) {
-  userIdByToken(input: { token: $input }) {
-    getUserIdResponse {
-      userId
+  mutation tokenMutation($input: String!) {
+    userIdByToken(input: { token: $input }) {
+      getUserIdResponse {
+        userId
+      }
     }
   }
-}
 `;
 
 const UPLOAD_FILE = gql`
-mutation upload($archivo: AddDocumentoInput!) {
-  addDocumento(documentoInput: $archivo) {
-    documento {
-      documentoId
-      estado
-      ruta
-      solicitudId
-      tipoDocumentoId
+  mutation upload($archivo: AddDocumentoInput!) {
+    addDocumento(documentoInput: $archivo) {
+      documento {
+        documentoId
+        estado
+        ruta
+        solicitudId
+        tipoDocumentoId
+      }
     }
   }
-}`;
+`;
 
 export const useProductFormStore = defineStore("productForm", () => {
   const toast = useToast();
@@ -119,7 +180,7 @@ export const useProductFormStore = defineStore("productForm", () => {
 
   const archivos = reactive<any>({
     onapi: null,
-    certificadoVentas : null,
+    certificadoVentas: null,
     listaIngredientes: null,
     descripcionElaboracion: null,
     arteEtiqueta: null,
@@ -131,8 +192,12 @@ export const useProductFormStore = defineStore("productForm", () => {
     poderRepresentante: null,
     certificadoRegistroMercantil: null,
     contratoAcondicionador: null,
-    muestras:[{}]
-  }); // Lista para almacenar los archivos adjuntos
+    muestra1: null,
+    muestra2: null,
+    muestra3: null,
+  });
+   // Lista para almacenar los archivos adjuntos
+  const products = ref([]);
 
   const factores = reactive({
     haccp: "",
@@ -144,18 +209,18 @@ export const useProductFormStore = defineStore("productForm", () => {
 
   const estadoFisicos = ref([]); // Lista para almacenar los valores de estado físico
 
-  async function uploadFile() {
-    console.log("Subiendo archivo:", archivos.certificado);
+  async function uploadFile(archivo: any, tipo: number, solicitudId: number) {
+    console.log("Subiendo archivo:", archivo);
     try {
       const { data } = await apolloClient.mutate({
         mutation: UPLOAD_FILE,
         variables: {
-          archivo : {
-            archivo: archivos.certificado,
-            solicitudId: 2,
-            tipoDocumentoId: 13,
-            comentarioDocumentos: [1,2]
-            }
+          archivo: {
+            archivo: archivo,
+            solicitudId: solicitudId,
+            tipoDocumentoId: tipo,
+            comentarioDocumentos: [1, 2],
+          },
         },
       });
 
@@ -168,27 +233,77 @@ export const useProductFormStore = defineStore("productForm", () => {
   async function getUserIdByToken() {
     const token = localStorage.getItem("accessToken") || "null";
 
-    const tokenWithNoQuotes = token.replace(/['"]+/g, '');
+    const tokenWithNoQuotes = token.replace(/['"]+/g, "");
     console.log("Token sin comillas:", tokenWithNoQuotes);
 
     const { data } = await apolloClient.mutate({
       mutation: GET_USER,
       variables: {
-        input:tokenWithNoQuotes,
+        input: tokenWithNoQuotes,
       },
     });
     return data.userIdByToken.getUserIdResponse.userId;
   }
 
-  
-  async function createProductEntidad() {
+  async function createRequest(productoId: number) {
+    const request = {
+      productoId: productoId,
+      estado: "en proceso",
+    };
+
+    const { data } = await apolloClient.mutate({
+      mutation: CREATE_REQUEST,
+      variables: {
+        input: request,
+      },
+    });
+
+    console.log("Solicitud creada:", data.addSolicitud.solicitud.solicitudId);
+    return data.addSolicitud.solicitud.solicitudId;
+  }
+
+  async function createFicha(solicitudId: number) {
+    const fichaInput = solicitudId;
+
+    const { data } = await apolloClient.mutate({
+      mutation: CREATE_BPM,
+      variables: {
+        input: fichaInput,
+      },
+    });
+
+    console.log("Ficha creada:", data);
+  }
+
+  async function createFactores(solicitudId: number) {
+    const factoresInput = {
+      solicitudId: solicitudId,
+      opcionIds: [
+        factores.poblacion,
+        factores.produccion,
+        factores.rechazos,
+        factores.muestras,
+      ],
+    };
+
+    const { data } = await apolloClient.mutate({
+      mutation: ADD_FACTORES,
+      variables: {
+        input: factoresInput,
+      },
+    });
+
+    console.log("Factores asignados:", data);
+  }
+
+  async function createProductEntidad(entidad: any) {
     const enti = {
-      cedula: "3434",
-      correo: null,
-      direccion: null,
-      nombre: "hola",
-      rnc: null,
-      telefono: null,
+      cedula: entidad.cedula,
+      correo: entidad.email,
+      direccion: entidad.direccion,
+      nombre: entidad.nombre,
+      rnc: entidad.rnc,
+      telefono: entidad.telefono,
     };
 
     const { data } = await apolloClient.mutate({
@@ -199,6 +314,7 @@ export const useProductFormStore = defineStore("productForm", () => {
     });
 
     console.log("Entidad creada:", data);
+    return data.addEntidad.entidad.entidadId;
   }
   // Función para obtener los estados físicos
   async function fetchEstadoFisicos() {
@@ -227,6 +343,11 @@ export const useProductFormStore = defineStore("productForm", () => {
   const factoresRechazos = ref([]); // Lista para almacenar los factores de rechazos
   const factoresMuestras = ref([]); // Lista para almacenar los factores de muestras
 
+  async function initProductos() {
+    products.value = await getUserProducts();
+    console.log("Productos del usuario:", products.value);
+  }
+
   async function initFactores() {
     factoresHACCP.value = await fetchFactores(1);
     factoresPoblacion.value = await fetchFactores(3);
@@ -235,7 +356,7 @@ export const useProductFormStore = defineStore("productForm", () => {
     factoresMuestras.value = await fetchFactores(6);
   }
 
-  async function createProduct(formData: any) {
+  async function createProduct(formData: any, entidades: any, userId: number) {
     const productInputForm = {
       envasePrimario: formData.envasePrimario,
       estado: "Activo",
@@ -248,9 +369,63 @@ export const useProductFormStore = defineStore("productForm", () => {
       presentaciones: formData.presentacion,
       riesgoSubcategoriaId: formData.subcategoria,
       unIngrediente: formData.unIngrediente === "true",
-      usuarioId: 35,
-      productoEntidades: [{ entidadId: 1, productoId: 3, relacionId: 1 }],
+      usuarioId: userId,
+      productoEntidades: [
+        {
+          entidadId: entidades.titular.entidadId,
+          productoId: 3,
+          relacionId: entidades.titular.relacionId,
+        },
+        {
+          entidadId: entidades.almacenador.entidadId,
+          productoId: 3,
+          relacionId: entidades.almacenador.relacionId,
+        },
+        {
+          entidadId: entidades.fabricante.entidadId,
+          productoId: 3,
+          relacionId: entidades.fabricante.relacionId,
+        },
+        {
+          entidadId: entidades.acondicionador.entidadId,
+          productoId: 3,
+          relacionId: entidades.acondicionador.relacionId,
+        },
+        {
+          entidadId: entidades.personaContacto.entidadId,
+          productoId: 3,
+          relacionId: entidades.personaContacto.relacionId,
+        },
+        {
+          entidadId: entidades.representanteLegal.entidadId,
+          productoId: 3,
+          relacionId: entidades.representanteLegal.relacionId,
+        },
+      ],
     };
+
+    const pr = {
+      envasePrimario: "Botella",
+      estado: "Activo",
+      estadoFisicoId: 1,
+      marca: "Coca Cola",
+      materialEmpaque: "Plástico",
+      nacional: true,
+      nombre: "otramas",
+      origen: "Nacional",
+      presentaciones: "latas",
+      riesgoSubcategoriaId: 1,
+      unIngrediente: true,
+      usuarioId: 33,
+      productoEntidades: [
+        { entidadId: 1, productoId: 3, relacionId: 2 },
+        { entidadId: 2, productoId: 3, relacionId: 2 },
+        { entidadId: 3, productoId: 3, relacionId: 2 },
+        { entidadId: 4, productoId: 3, relacionId: 2 },
+      ],
+    };
+
+    console.log("Datos del producto:", productInputForm);
 
     const { data } = await apolloClient.mutate({
       mutation: CREATE_PRODUCT,
@@ -260,6 +435,7 @@ export const useProductFormStore = defineStore("productForm", () => {
     });
 
     console.log("Producto creado:", data);
+    return data.addProducto.producto.usuarioId;
   }
 
   async function fetchFactores(factorId: number) {
@@ -293,6 +469,76 @@ export const useProductFormStore = defineStore("productForm", () => {
 
   const categorias = ref([]); // Lista para almacenar las categorías
   const subcategorias = ref([]); // Lista para almacenar las subcategorías
+
+  async function crearSolicitudCompleta() {
+    try {
+      const userId = await getUserIdByToken();
+      console.log("Usuario obtenido:", userId);
+
+      const titular = await createProductEntidad(formData.titular);
+      const almacenador = await createProductEntidad(formData.almacenador);
+      const fabricante = await createProductEntidad(formData.fabricante);
+      const acondicionador = await createProductEntidad(
+        formData.acondicionador
+      );
+      const personaContacto = await createProductEntidad(
+        formData.personaContacto
+      );
+      const representanteLegal = await createProductEntidad(
+        formData.representanteLegal
+      );
+
+      const entidades = {
+        titular: {
+          entidadId: titular,
+          relacionId: 3,
+        },
+        almacenador: {
+          entidadId: almacenador,
+          relacionId: 4,
+        },
+        fabricante: {
+          entidadId: fabricante,
+          relacionId: 6,
+        },
+        acondicionador: {
+          entidadId: acondicionador,
+          relacionId: 5,
+        },
+        personaContacto: {
+          entidadId: personaContacto,
+          relacionId: 4,
+        },
+        representanteLegal: {
+          entidadId: representanteLegal,
+          relacionId: 2,
+        },
+      };
+
+      const producto = await createProduct(
+        formData,
+        entidades,
+        parseInt(userId)
+      );
+      const solicitud = await createRequest(parseInt(producto));
+
+      const parse = parseInt(solicitud);
+
+      for (const key in archivos) {
+        if (archivos[key]) {
+          await uploadFile(archivos[key], 1, parse);
+        }
+      }
+
+      await createFactores(parse);
+      await createFicha(parse);
+      toast.success("Solicitud enviada correctamente.");
+      router.push("/user/dashboard");
+    } catch (err) {
+      console.error("Error al crear solicitud:", err);
+      toast.error("Error al enviar la solicitud.");
+    }
+  }
 
   async function fetchCategorias() {
     try {
@@ -365,6 +611,22 @@ export const useProductFormStore = defineStore("productForm", () => {
   }
 
   const riesgoData = ref<Riesgo | null>(null);
+
+  async function getUserProducts() {
+    const userId = await getUserIdByToken();
+    try {
+      const { data } = await apolloClient.query({
+        query: GET_PRODUCTS,
+        variables: {
+          usuarioId: parseInt(userId),
+        },
+      });
+
+      return data.usuarios.items[0].productos;
+    } catch (err) {
+      console.error("GraphQL Error:", err);
+    }
+  }
 
   async function fetchRiesgo(subcategoriaId: number) {
     try {
@@ -485,10 +747,17 @@ export const useProductFormStore = defineStore("productForm", () => {
 
   function submitForm() {
     console.log("Formulario enviado:", currentForm.value.checkValidity());
+    console.log("Paso actual:", currentStep.value);
+    console.log("Datos del formulario:", formData);
+    console.log("Archivos adjuntos:", archivos);
+    console.log("Factores de riesgo:", factores);
 
     if (currentForm.value.checkValidity()) {
       if (currentStep.value < 4) {
         currentStep.value++;
+      } else if (currentStep.value === 4) {
+        crearSolicitudCompleta();
+        console.log("Solicitud completada.");
       }
       // Enviar formulario
     } else {
@@ -503,6 +772,7 @@ export const useProductFormStore = defineStore("productForm", () => {
   }
 
   return {
+    products,
     archivos,
     factoresHACCP,
     factoresPoblacion,
@@ -522,12 +792,15 @@ export const useProductFormStore = defineStore("productForm", () => {
     currentForm,
     fetchEstadoFisicos,
     changeSubcategoria,
+    getUserIdByToken,
+    getUserProducts,
     uploadFile,
     initFactores,
     fetchCategorias,
     debug,
     calcularRiesgo,
     goBack,
+    initProductos,
     submitForm,
   };
 });

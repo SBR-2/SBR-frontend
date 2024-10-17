@@ -1,12 +1,44 @@
 <template>
   <div>
-    <h5>Muestras biológicas: {{ form.riesgo }} requeridas</h5>
+    <h5 class="mt-5">Muestras biológicas requeridas</h5>
 
-    <div v-for="n in form.riesgo" :key="n">
-      <div class="mb-3">
-        <label :for="'file' + n">Muestra biológica</label>
-        <input class="form-control" type="file" :id="'file' + (n + 1)" @change="handleFileChange(n, $event)"  required />
-      </div>
+    <!-- Primera muestra (siempre visible) -->
+    <div class="mb-3">
+      <label for="muestra1" class="form-label">Muestra biológica 1</label>
+      <input 
+        type="file" 
+        class="form-control" 
+        id="muestra1"
+        @change="handleMuestra1"
+        accept="application/pdf"
+        required 
+      />
+    </div>
+
+    <!-- Segunda muestra (MEDIA y ALTA) -->
+    <div class="mb-3" v-if="form.riesgo === 2 || form.riesgo === 3 ">
+      <label for="muestra2" class="form-label">Muestra biológica 2</label>
+      <input 
+        type="file" 
+        class="form-control" 
+        id="muestra2"
+        @change="handleMuestra2"
+        accept="application/pdf"
+        required 
+      />
+    </div>
+
+    <!-- Tercera muestra (solo ALTA) -->
+    <div class="mb-3" v-if="form.riesgo === 3">
+      <label for="muestra3" class="form-label">Muestra biológica 3</label>
+      <input 
+        type="file" 
+        class="form-control" 
+        id="muestra3"
+        @change="handleMuestra3"
+        accept="application/pdf"
+        required 
+      />
     </div>
 
     <!-- Select Factor Muestras -->
@@ -53,22 +85,34 @@
 
 <script>
 import { useProductFormStore } from "../../stores/productFormLogic";
+
 export default {
   name: "InformacionMuestras",
   setup() {
     const form = useProductFormStore();
 
-    const handleFileChange = (index, event) => {
-      // Agrega el archivo al array correspondiente
+    const handleMuestra1 = (event) => {
       const file = event.target.files[0];
-
-      if (file) {
-        // Asegúrate de que el índice es correcto para tu lógica
-        form.archivos.certificado[index] = file;
-      }
+      form.archivos.muestra1 = file;
     };
 
-    return { form };
+    const handleMuestra2 = (event) => {
+      const file = event.target.files[0];
+      form.archivos.muestra2 = file;
+
+    };
+
+    const handleMuestra3 = (event) => {
+      const file = event.target.files[0];
+        form.archivos.muestra3 = file;
+    };
+
+    return {
+      form,
+      handleMuestra1,
+      handleMuestra2,
+      handleMuestra3
+    };
   },
 };
 </script>

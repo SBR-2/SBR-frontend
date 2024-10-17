@@ -1,7 +1,9 @@
 
 <template>
   <main>
+    <Suspense>
     <RegisterProductForm />
+    </Suspense>
   </main>
 </template>
 

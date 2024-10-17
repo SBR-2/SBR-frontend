@@ -22,7 +22,6 @@
               ref="form1"
               class="requires-validation"
               @submit.prevent="validateAndSubmit"
-              novalidate
             >
               <InformacionGeneral />
               <ComposicionProducto />
@@ -50,14 +49,19 @@
               <InformacionAlmacenador />
               <InformacionFabricante />
               <InformacionAcondicionador />
-              <button class="btn btn-primary mb-4" click="">
+              <button class="btn btn-primary mb-4" type="submit">
                 {{ form.currentStep === 4 ? "Enviar" : "Siguiente" }}
               </button>
             </form>
           </div>
 
           <div v-show="form.currentStep === 4">
+            <form ref="form3" @submit.prevent="form.submitForm">
             <InformacionMuestras />
+            <button class="btn btn-primary mb-4" type="submit">
+                {{ form.currentStep === 4 ? "Enviar" : "Siguiente" }}
+              </button>
+            </form>
           </div>
         </div>
       </div>

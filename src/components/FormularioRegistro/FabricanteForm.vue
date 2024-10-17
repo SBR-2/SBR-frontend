@@ -107,6 +107,7 @@
       >
       <input type="file" class="form-control" id="certificadoExportacion" @change="handleExportacion"/>
     </div>
+  </div>
 
     <!-- Select HACCP -->
     <div class="mb-3">
@@ -123,7 +124,7 @@
           :key="option.opcionId"
           :value="option.opcionId"
         >
-          {{ option.nombre }}
+          {{ option.detalle }}
         </option>
       </select>
     </div>
@@ -147,7 +148,6 @@
         </option>
       </select>
     </div>
-  </div>
 </template>
 
 <script>
