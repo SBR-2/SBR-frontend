@@ -83,6 +83,12 @@ export default defineComponent({
   top: 0;
   bottom: 0;
   overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+/* Ocultar menú en pantallas pequeñas inicialmente */
+.menu-hidden {
+  transform: translateX(-100%);
 }
 
 .menu-logo {
@@ -113,11 +119,32 @@ export default defineComponent({
   margin-bottom: 20px;
 }
 
+/* Botón hamburguesa para abrir/cerrar menú */
+.menu-toggle {
+  display: none;
+  background-color: transparent;
+  border: none;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1000;
+}
+
 @media (max-width: 768px) {
   .menu-container {
-    position: static;
+    position: fixed;
     width: 100%;
     max-width: none;
+    transform: translateX(-100%);
+  }
+
+  .menu-hidden {
+    transform: translateX(0);
+  }
+
+  /* Mostrar botón hamburguesa en pantallas pequeñas */
+  .menu-toggle {
+    display: block;
   }
 }
 </style>

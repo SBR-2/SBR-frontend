@@ -108,6 +108,7 @@ import { useQuery, useMutation } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 import HeaderInspector from './HeaderInspector.vue'
 import SidebarInspector from './SideBarInspector.vue'
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   components: {
@@ -115,6 +116,7 @@ export default defineComponent({
     SidebarInspector
   },
   setup() {
+    const router = useRouter(); // Obtén el router para navegar
     const solicitudId = ref(parseInt(window.location.pathname.split('/').pop(), 10) || 1); // ID de la solicitud seleccionada
 
     const GET_EVALUACIONREGISTROPRODUCTO = gql`
@@ -193,8 +195,32 @@ export default defineComponent({
         }
       }
     `;
+    const RECHAZAR_PRODUCTO = gql`
+      mutation RechazarProducto($solicitudId: Int!, $productoId: Int!) {
+        updateSolicitud(
+          solicitudInput: {
+            acondicionadorDistinto: true
+            esExportado: true
+            estado: "rechazada"
+            observaciones: "null"
+            productoId: $productoId
+            solicitudId: $solicitudId
+            titularFabricante: true
+            titularRepresentacion: true
+          }
+        ) {
+          solicitud {
+            productoId
+            solicitudId
+            estado
+          }
+        }
+      }
+    `;
+   
 
     const { mutate: approveProductMutation, loading: approveLoading, error: approveError } = useMutation(APROBAR_PRODUCTO);
+    const { mutate: rejectProductMutation } = useMutation(RECHAZAR_PRODUCTO);
 
     const approveProduct = () => {
       if (!solicitudData.value) {
@@ -215,15 +241,35 @@ export default defineComponent({
       })
       .then((response) => {
         console.log('Producto aprobado:', response.data.updateSolicitud.solicitud);
-      })
+        router.go(-1)      })
       .catch((error) => {
         console.error('Error al aprobar el producto:', error.graphQLErrors || error);
       });
     };
+    
 
+
+   
     const rejectProduct = () => {
-      // Implementa la lógica para rechazar el producto aquí
-      console.log('Rechazar producto');
+      if (!solicitudData.value) {
+        console.error('No hay datos de solicitud disponibles');
+        return;
+      }
+
+      const productoId = parseInt(solicitudData.value.productoId, 10);
+      const solicitudIdValue = parseInt(solicitudData.value.solicitudId, 10);
+
+      rejectProductMutation({
+        solicitudId: solicitudIdValue,
+        productoId: productoId,
+      })
+        .then((response) => {
+          console.log('Producto rechazado:', response.data.updateSolicitud.solicitud);
+          router.go(-1)
+        })
+        .catch((error) => {
+          console.error('Error al rechazar el producto:', error.graphQLErrors || error);
+        });
     };
 
     const toggleSidebar = () => {
