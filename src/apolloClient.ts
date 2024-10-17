@@ -1,12 +1,13 @@
-import { ApolloClient, InMemoryCache } from '@apollo/client/core';
-import { createHttpLink } from '@apollo/client/link/http';
-import { setContext } from '@apollo/client/link/context';
+import { ApolloClient, InMemoryCache } from "@apollo/client/core";
+import { createHttpLink } from "@apollo/client/link/http";
+import { setContext } from "@apollo/client/link/context";
 
 // Obtener variable de entorno o endpoint default
-const apiUrl = import.meta.env.VITE_GRAPHQL_API_URL || 'http://localhost:4000/graphql';
+const apiUrl =
+  import.meta.env.VITE_GRAPHQL_API_URL || "https://localhost:7289/graphql/";
 
 const httpLink = createHttpLink({
-    uri: apiUrl
+  uri: apiUrl,
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -20,8 +21,8 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const apolloClient = new ApolloClient({
-    link: authLink.concat(httpLink),
-    cache: new InMemoryCache(),
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache(),
 });
 
 export default apolloClient;
