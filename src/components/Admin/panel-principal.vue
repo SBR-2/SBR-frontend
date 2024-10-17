@@ -23,7 +23,7 @@
           <p class="menu-label fs-7">Menu</p>
           <ul class="nav flex-column">
             <li class="nav-item nav-link">
-              <router-link to="/dashboard">
+              <router-link to="/admin/dashboard">
                 <img
                   :src="'/dashboard.svg'"
                   alt="dashboard Logo"
@@ -95,8 +95,7 @@
                     <router-link to="/personal">
                       <li><a class="dropdown-item btn">Personal</a></li>
                     </router-link>
-                    <router-link to="/login"><li><a class="dropdown-item" href="#">Cerrar sesión</a>
-                    </li></router-link>
+                    <li @click="logout"><a class="dropdown-item">Cerrar sesión</a></li>
                   </ul>
                 </li>
               </ul>
@@ -109,7 +108,28 @@
 </template>
 
 <script>
-import router from "../../router/router";
+import { defineComponent } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
+
+export default defineComponent({
+    setup() {
+        const authStore = useAuthStore();
+        const router = useRouter();
+        const toast = useToast();
+
+        const logout = () => {
+            authStore.logout();
+            toast.warning('Has cerrado sesión...');
+            router.push('/login');
+        };
+
+        return {
+            logout
+        };
+    }
+});
 </script>
 
 <style scoped>
@@ -209,5 +229,9 @@ import router from "../../router/router";
 
 .profile-container {
   align-items: center;
+}
+
+.dropdown-item {
+  cursor: pointer;
 }
 </style>

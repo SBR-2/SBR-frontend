@@ -172,7 +172,7 @@ export default {
           );
           // Mostrar error completo para depuración
           console.log(JSON.stringify(error, null, 2));
-          toast.error("Error al modificar usuario: ${error.message}");
+          toast.error(`Error al modificar usuario`);
         });
     };
 
