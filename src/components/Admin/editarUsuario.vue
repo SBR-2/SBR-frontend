@@ -1,306 +1,192 @@
 <template>
   <div class="container">
-    <div>
-      <div class="user-list-container">
-        <h4 class="titulo d-flex">Asignación Inspección</h4>
-        <!-- Barra de búsqueda -->
-        <input
-          type="text"
-          v-model="searchTerm"
-          placeholder="Buscar"
-          class="search-bar"
-        />
+    <div class="row justify-content-center mt-5">
+      <div class="col-md-6">
+        <h2 class="text-center">Editar Usuario</h2>
+        <!-- Form to edit the user -->
+        <form @submit.prevent="submitForm">
+          <!-- Name Input -->
+          <div class="mb-3">
+            <label for="nombre" class="form-label d-flex">Nombre*</label>
+            <input
+              type="text"
+              class="form-control"
+              id="nombre"
+              v-model="formData.nombre"
+              required
+            />
+          </div>
+
+          <!-- Role Selection -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="rol" class="form-label d-flex">Rol*</label>
+              <select
+                class="form-select"
+                id="rol"
+                v-model="formData.rol"
+                required
+              >
+                <option value="3">Inspector</option>
+                <option value="4">Evaluador</option>
+                <!-- Ensure the roles match your backend's rolId values (1, 2, etc.) -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Email Input -->
+          <div class="mb-3">
+            <label for="correo" class="form-label d-flex">Correo*</label>
+            <input
+              type="email"
+              class="form-control"
+              id="correo"
+              v-model="formData.correo"
+              required
+            />
+          </div>
+
+          <!-- Submit Button -->
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary w-50">
+              Modificar
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-    <!-- Manejo de estados de carga y error para fichas e inspectores -->
-    <div v-if="loadingFichas || loadingInspectores">
-      <p>Cargando datos...</p>
-    </div>
-    <div v-else-if="errorFichas || errorInspectores">
-      <p>
-        Error al cargar los datos:
-        {{ errorFichas?.message || errorInspectores?.message }}
-      </p>
-    </div>
-    <!-- Tabla para visualizar las solicitudes -->
-    <div v-else>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Empresa</th>
-            <th>Dirección</th>
-            <th>Producto</th>
-            <th>Fecha de Solicitud</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="solicitud in filteredSolicitudes"
-            :key="solicitud.fichaId"
-          >
-            <td>{{ solicitud.nombre }}</td>
-            <td>{{ solicitud.correo }}</td>
-            <td>{{ solicitud.entidadNombre }}</td>
-            <td>{{ solicitud.direccion }}</td>
-            <td>{{ solicitud.productoNombre }}</td>
-            <td>{{ formatDate(solicitud.fechaSolicitud) }}</td>
-            <td class="acciones-cell">
-              <select
-                v-model="solicitud.selectedInspectorId"
-                @change="asignarInspector(solicitud)"
-                :disabled="solicitud.isAssigning"
-              >
-                <option disabled value="">
-                  {{ solicitud.inspectorId ? 'Cambiar Inspector' : 'Asignar Inspector' }}
-                </option>
-                <option
-                  v-for="inspector in inspectores"
-                  :key="inspector.inspectorId"
-                  :value="inspector.inspectorId"
-                >
-                  {{ inspector.correo }} - {{ inspector.estado }}
-                </option>
-              </select>
-              <span v-if="solicitud.isAssigning" class="loading-text">
-                Asignando...
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <!-- Componente PanelPrincipal -->
-    <PanelPrincipal />
+
+    <!-- Including panel-principal component -->
+    <panel-principal />
   </div>
 </template>
 
 <script>
-import PanelPrincipal from './panel-principal.vue';
-import { ref, watch, computed, defineComponent } from 'vue';
-import { gql } from 'graphql-tag';
-import { useQuery, useMutation } from '@vue/apollo-composable';
-import { useToast } from 'vue-toastification';
+import { ref, onMounted, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import PanelPrincipal from "./panel-principal.vue";
+import { useQuery, useMutation } from "@vue/apollo-composable";
+import gql from "graphql-tag";
+import { useToast } from "vue-toastification";
 
-// Consulta para obtener fichas
-const GET_FICHAS_INSPECTORES = gql`
-  query inspector {
-    fichas(skip: null, take: null, where: {}, order: null) {
+const GET_USUARIO = gql`
+  query getUsuario($userId: Int!) {
+    usuarios(where: { usuarioId: { eq: $userId } }) {
       items {
-        fichaId
-        solicitud {
-          fechaCreacion
-          producto {
-            nombre
-            usuario {
-              nombre
-              correo
-              entidad {
-                nombre
-                direccion
-              }
-            }
-          }
-        }
-        inspectorId
-        inspector {
-          correo
-          estado
-          rolId
-          usuarioId
-          nombre
-        }
-      }
-    }
-  }
-`;
-
-// Consulta para obtener todos los inspectores
-const GET_ALL_INSPECTORES = gql`
-  query getAllInspectores {
-    inspectores {
-      inspectorId
-      correo
-      estado
-      rolId
-      usuarioId
-      nombre
-    }
-  }
-`;
-
-// Mutación para actualizar una ficha
-const UPDATE_FICHA = gql`
-  mutation updateFicha($input: UpdateFichaInput!) {
-    updateFicha(input: $input) {
-      ficha {
+        correo
+        entidadId
         estado
-        fichaId
-        inspectorId
-        inspector {
-          estado
-          nombre
-        }
+        nombre
+        rolId
+        usuarioId
       }
     }
   }
 `;
 
-export default defineComponent({
+const UPDATE_USUARIO = gql`
+  mutation editarUsuario($usuarioId: Int!, $input: UpdateUsuarioInput!) {
+    updateUsuario(usuarioId: $usuarioId, input: $input) {
+      usuario {
+        usuarioId
+        nombre
+        correo
+        rolId
+        estado
+      }
+    }
+  }
+`;
+
+export default {
   components: {
     PanelPrincipal,
   },
   setup() {
-    const searchTerm = ref('');
-    const toast = useToast();
+    const route = useRoute();
+    const router = useRouter();
+    const usuarioId = ref(null);
 
-    // Consulta para obtener fichas
-    const {
-      result: resultFichas,
-      loading: loadingFichas,
-      error: errorFichas,
-      refetch: refetchFichas,
-    } = useQuery(GET_FICHAS_INSPECTORES);
-
-    // Consulta para obtener todos los inspectores
-    const {
-      result: resultInspectores,
-      loading: loadingInspectores,
-      error: errorInspectores,
-    } = useQuery(GET_ALL_INSPECTORES);
-
-    const solicitudes = ref([]);
-    const inspectores = ref([]);
-
-    // Definir la mutación para actualizar una ficha
-    const { mutate: updateFicha } = useMutation(UPDATE_FICHA, {
-      onCompleted: () => {
-        // Refrescar la consulta después de la mutación
-        refetchFichas();
-        toast.success('Inspector asignado correctamente.');
-      },
-      onError: (mutationError) => {
-        // Manejar errores globalmente si es necesario
-        console.error(mutationError);
-      },
+    const formData = reactive({
+      nombre: "",
+      rol: "",
+      correo: "",
     });
 
-    // Procesar los resultados de las consultas
-    watch(
-      () => resultFichas.value,
-      (newValue) => {
-        if (newValue && newValue.fichas && newValue.fichas.items) {
-          solicitudes.value = newValue.fichas.items
-            .map((ficha) => {
-              const solicitud = ficha.solicitud;
-              const usuario = solicitud.producto.usuario;
-              const producto = solicitud.producto;
-              if (usuario) {
-                return {
-                  fichaId: ficha.fichaId,
-                  nombre: usuario.nombre,
-                  correo: usuario.correo,
-                  entidadNombre: usuario.entidad?.nombre || 'Sin entidad',
-                  direccion: usuario.entidad?.direccion || 'Sin dirección',
-                  fechaSolicitud: solicitud.fechaCreacion,
-                  productoNombre: producto?.nombre || 'Sin producto',
-                  inspectorId: ficha.inspectorId,
-                  inspector: ficha.inspector,
-                  selectedInspectorId: ficha.inspectorId || '',
-                  isAssigning: false,
-                };
-              } else {
-                return null;
-              }
-            })
-            .filter((item) => item !== null);
-        }
-      },
-      { immediate: true }
-    );
+    const message = ref(null);
+    let loading, error, updateLoading, updateError, onResult;
 
-    watch(
-      () => resultInspectores.value,
-      (newValue) => {
-        if (newValue && newValue.inspectores) {
-          inspectores.value = newValue.inspectores;
-        }
-      },
-      { immediate: true }
-    );
+    onMounted(() => {
+      usuarioId.value = parseInt(route.params.userId);
 
-    // Computed para filtrar las solicitudes
-    const filteredSolicitudes = computed(() => {
-      if (!searchTerm.value) {
-        return solicitudes.value;
-      }
-      const term = searchTerm.value.toLowerCase();
-      return solicitudes.value.filter((solicitud) => {
-        return (
-          solicitud.nombre.toLowerCase().includes(term) ||
-          solicitud.correo.toLowerCase().includes(term) ||
-          solicitud.entidadNombre.toLowerCase().includes(term) ||
-          solicitud.direccion.toLowerCase().includes(term) ||
-          solicitud.productoNombre.toLowerCase().includes(term)
-        );
+      const queryResult = useQuery(GET_USUARIO, { userId: usuarioId.value });
+      onResult = queryResult.onResult;
+      loading = queryResult.loading;
+      error = queryResult.error;
+
+      onResult((response) => {
+        if (
+          !loading.value &&
+          response.data &&
+          response.data.usuarios &&
+          response.data.usuarios.items.length > 0
+        ) {
+          const usuario = response.data.usuarios.items[0];
+          if (usuario) {
+            formData.nombre = usuario.nombre;
+            formData.correo = usuario.correo;
+            formData.rol = usuario.rolId;
+          }
+        } else if (loading.value) {
+          console.log("Cargando data...");
+        } else {
+          console.error("Falló la carga de datos:", error.value);
+        }
       });
     });
 
-    // Función para formatear la fecha
-    const formatDate = (dateString) => {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString('es-ES', options);
-    };
+    const { mutate: editarUsuario } = useMutation(UPDATE_USUARIO);
+    const toast = useToast();
+    const submitForm = () => {
+      // Depuración: Verifica si el usuarioId es correcto antes de enviar la mutación
+      console.log("Enviando mutación con usuarioId:", usuarioId.value);
 
-    // Función para asignar el inspector seleccionado a la ficha
-    const asignarInspector = async (solicitud) => {
-      if (!solicitud.selectedInspectorId) {
-        toast.error('Por favor, seleccione un inspector.');
-        return;
-      }
-
-      solicitud.isAssigning = true;
-
-      const input = {
-        inspectorId: parseInt(solicitud.selectedInspectorId),
-        aprobadorId: null,
-        calificacion: null,
-        evaluadorId: null,
-        fechaAprobacion: null,
-        fechaRevision: null,
-        fichaId: solicitud.fichaId,
-        matizRiesgo: null,
-        revisorId: null,
-      };
-
-      try {
-        await updateFicha({ variables: { input } });
-        // La notificación de éxito ya se maneja en onCompleted
-      } catch (err) {
-        // Mostrar error usando Toast
-        toast.error(`Error al asignar inspector: ${err.message}`);
-        console.error(err);
-      } finally {
-        solicitud.isAssigning = false;
-      }
+      editarUsuario({
+        usuarioId: usuarioId.value,  // Asegúrate de que este valor se envía correctamente
+        input: {
+          nombre: formData.nombre,
+          correo: formData.correo,
+          rolId: formData.rol,
+          password: "1234", // Contraseña por defecto o dinámica
+          estado: "true", // Esto puede ser dinámico dependiendo de tu lógica
+        },
+      })
+        .then(() => {
+          toast.success("Usuario Modificado exitosamente");
+          router.push("/listaUsuarios");
+        })
+        .catch((error) => {
+          console.error(
+            "Error al modificar usuario:",
+            error.networkError ? error.networkError.result.errors : error
+          );
+          // Mostrar error completo para depuración
+          console.log(JSON.stringify(error, null, 2));
+          toast.error("Error al modificar usuario: ${error.message}");
+        });
     };
 
     return {
-      searchTerm,
-      solicitudes,
-      filteredSolicitudes,
-      loadingFichas,
-      loadingInspectores,
-      errorFichas,
-      errorInspectores,
-      formatDate,
-      inspectores,
-      asignarInspector,
+      formData,
+      submitForm,
+      loading,
+      updateLoading,
+      message,
+      editarUsuario,
     };
   },
-});
+
+};
 </script>
 
 <style scoped>
