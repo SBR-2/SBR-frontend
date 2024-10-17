@@ -17,7 +17,7 @@ const InspectorRoutes: Array<RouteRecordRaw> = [
     component: () => import('../../components/Inspector/ListaRegistroSanitarioInspector.vue')
   },
   {
-    path: '/evaluacion-producto',
+    path: '/evaluacion-producto/:solicitudId',
     name: 'EvaluacionProductoInspector',
     component: () => import('../../components/Inspector/EvaluacionProductoInspector.vue')
   },
@@ -36,11 +36,7 @@ const InspectorRoutes: Array<RouteRecordRaw> = [
     name: 'EvaluacionRegistroSanitarioPart3',
     component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart3.vue')
   },
-  {	
-    path: '/Prueba',
-    name: 'Prueba',
-    component: () => import('../../components/Inspector/Prueba.vue')
-  },
+  
   // ...otras rutas
 ];
 export default InspectorRoutes;

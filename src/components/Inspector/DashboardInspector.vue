@@ -15,29 +15,35 @@
             <thead>
               <tr>
                 <th>Empresa</th>
+                <th>Nombre</th>
                 <th>Correo</th>
                 <th>Fecha</th>
                 <th>Evaluar</th>
               </tr>
             </thead>
             <tbody>
-              <template v-if="loading">
-                <tr>
-                  <td colspan="4" class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                      <span class="sr-only">Cargando...</span>
-                    </div>
-                  </td>
-                </tr>
-              </template>
+              <tr v-if="loading">
+                <td colspan="5" class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Cargando...</span>
+                  </div>
+                </td>
+              </tr>
+              <tr v-else-if="error">
+                <td colspan="5" class="text-center py-4 text-danger">
+                  Error al cargar solicitudes: {{ error.message }}
+                </td>
+              </tr>
               <template v-else>
                 <tr v-for="solicitud in solicitudes" :key="solicitud.solicitudId">
                   <td>{{ solicitud.producto.usuario.entidad.nombre }}</td>
-                  <td>{{ solicitud.producto.usuario.nombre }}</td>
+                  <td>{{ solicitud.producto.nombre }}</td>
                   <td>{{ solicitud.producto.usuario.correo }}</td>
-                  <td>{{ solicitud.fechaCreacion }}</td>
+                  <td>{{ formatDate(solicitud.fechaCreacion) }}</td>
                   <td>
-                    <button class="btn btn-primary btn-sm" @click="evaluar(solicitud.solicitudId)">Evaluar</button>
+                    <router-link :to="{ path: `/evaluacion-producto/${solicitud.solicitudId}` }" class="btn btn-primary">
+                      Evaluar
+                    </router-link>
                   </td>
                 </tr>
               </template>
@@ -50,55 +56,69 @@
 </template>
 
 <script>
+import { defineComponent, ref, computed } from 'vue';
+import { useQuery } from '@vue/apollo-composable';
+import gql from 'graphql-tag';
 import HeaderInspector from './HeaderInspector.vue';
 import SidebarInspector from './SideBarInspector.vue';
-import gql from 'graphql-tag';
-import { useQuery } from '@vue/apollo-composable';
 
-export default {
+export default defineComponent({
   components: {
     HeaderInspector,
     SidebarInspector
   },
   setup() {
-    // Definir el query GraphQL
+    const sidebarVisible = ref(true);
+
     const GET_SOLICITUD = gql`
       query GET_EVALUACIONPRODUCTO {
-      solicituds(where: { estado: { eq: "en proceso" } }) {
-        items {
-          producto {
-            nombre
-            usuario {
-              entidad {
-                nombre
+        solicituds(where: { estado: { eq: "en proceso" } }) {
+          items {
+            solicitudId
+            producto {
+              nombre
+              usuario {
+                entidad {
+                  nombre
+                }
+                correo
               }
-              correo
             }
+            fechaCreacion
+            estado
           }
-          fechaCreacion
-          estado
         }
       }
-    }   `;
+    `;
 
-    // Usar el hook de Apollo para hacer la query
     const { result, loading, error } = useQuery(GET_SOLICITUD);
 
-    return {
-      solicitudes: result?.value?.solicituds?.items || [],
-      loading,
-      error
-    };
-  },
-  methods: {
-    evaluar(id) {
+    const solicitudes = computed(() => result.value?.solicituds?.items || []);
+
+    const evaluar = (id) => {
       console.log(`Evaluando solicitud con ID: ${id}`);
-    },
-    toggleSidebar() {
-      this.sidebarVisible = !this.sidebarVisible;
-    }
+      // Implementar lógica de evaluación aquí
+    };
+
+    const toggleSidebar = () => {
+      sidebarVisible.value = !sidebarVisible.value;
+    };
+
+    const formatDate = (dateString) => {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('es-ES', options);
+    };
+
+    return {
+      solicitudes,
+      loading,
+      error,
+      evaluar,
+      toggleSidebar,
+      formatDate
+    };
   }
-}
+});
 </script>
 
 <style scoped>

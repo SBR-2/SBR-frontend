@@ -35,9 +35,11 @@
                     <td>{{ evaluacion.producto.nombre }}</td>
                     <td>{{ evaluacion.producto.usuario.entidad.nombre }}</td>
                     <td>{{ evaluacion.producto.usuario.correo }}</td>
-                    <td>{{ evaluacion.fechaCreacion }}</td>
+                    <td>{{ new Date(evaluacion.fechaCreacion).toLocaleDateString('es-DO') }}</td>
                     <td>
-                      <button class="btn btn-primary" @click="evaluar(evaluacion.producto.nombre)">Evaluar</button>
+                      <router-link :to="{ path: `/evaluacion-producto/${evaluacion.solicitudId}` }" class="btn btn-primary">
+                        Evaluar
+                      </router-link>
                     </td>
                   </tr>
                 </template>
@@ -61,31 +63,29 @@
       SidebarInspector
     },
     setup() {
-      // Definir el query de GraphQL para obtener los datos
       const GET_EVALUACION_PRODUCTO = gql`
-         query GET_LISTA_PRODUCTOS {
-  solicituds(where: { estado: { eq: "en proceso" } }) {
-    items {
-      producto {
-        nombre
-        usuario {
-          entidad {
-            nombre
+        query GET_LISTA {
+          solicituds(where: { estado: { eq: "en proceso" } }) {
+            items {
+              producto {
+                nombre
+                usuario {
+                  entidad {
+                    nombre
+                  }
+                  correo
+                }
+              }
+              fechaCreacion
+              estado
+              solicitudId
+            }
           }
-          correo
         }
-      }
-      fechaCreacion
-      estado
-    }
-  }
-} 
       `;
   
-      // Usar el hook de Apollo para hacer la query
       const { result, loading, error } = useQuery(GET_EVALUACION_PRODUCTO);
   
-      // Retornar los datos para su uso en el template
       return {
         evaluaciones: result,
         loading,
@@ -104,9 +104,6 @@
       }
     },
     methods: {
-      evaluar(nombre) {
-        console.log(`Evaluando producto: ${nombre}`);
-      },
       toggleSidebar() {
         this.sidebarVisible = !this.sidebarVisible;
       },
@@ -118,7 +115,6 @@
   </script>
   
   <style scoped>
-  /* Manteniendo los estilos previos */
   .app-container {
     display: flex;
   }
@@ -176,4 +172,3 @@
     }
   }
   </style>
-  

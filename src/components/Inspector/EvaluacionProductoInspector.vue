@@ -86,7 +86,6 @@
         <div class="mb-3">
           <label class="form-label"><strong class="label-bold">Presentaciones</strong></label>
           <p class="label-value">{{ productData?.presentaciones || 'No disponible' }}</p>
-          <img :src="productImage" class="img-fluid" alt="Presentación del producto" />
         </div>
         <!-- Documentos para Información Empaque -->
         <div v-for="document in filteredDocuments('Esquema y especificaciones de empaque primario', 'Arte de etiqueta')" :key="document.tipoDocumentoId" class="mb-3">
@@ -103,32 +102,25 @@
     </div>
   </div>
 </template>
-
 <script>
-import HeaderInspector from './HeaderInspector.vue';
-import SidebarInspector from './SideBarInspector.vue';
-import gql from 'graphql-tag';
-import { useQuery } from '@vue/apollo-composable';
+import { defineComponent, ref, computed } from 'vue'
+import { useQuery, useMutation } from '@vue/apollo-composable'
+import gql from 'graphql-tag'
+import HeaderInspector from './HeaderInspector.vue'
+import SidebarInspector from './SideBarInspector.vue'
 
-export default {
+export default defineComponent({
   components: {
     HeaderInspector,
     SidebarInspector
   },
-  data() {
-    return {
-      productData: null,
-      documentData: [],
-      solicitudId: 2, // ID de la solicitud seleccionada
-      productImage: 'https://cdn.builder.io/api/v1/image/assets/TEMP/03fe2b14d1a20b5a7848e1247477fa6130e4dbabfcca7f69ec9d8de6daf02087' // Ejemplo de imagen del producto
-    };
-  },
   setup() {
-    const { result, loading, error } = useQuery(gql`
-      query GET_EVALUACIONREGISTROPRODUCTO {
-        solicituds {
+    const solicitudId = ref(parseInt(window.location.pathname.split('/').pop(), 10) || 1); // ID de la solicitud seleccionada
+
+    const GET_EVALUACIONREGISTROPRODUCTO = gql`
+      query GET_EVALUACIONREGISTROPRODUCTO($solicitudId: Int!) {
+        solicituds(where: { solicitudId: { eq: $solicitudId } }) {
           items {
-            solicitudId
             producto {
               envasePrimario
               estadoFisico {
@@ -160,39 +152,109 @@ export default {
                 tipoDocumento1
               }
             }
+            titularRepresentacion
+            titularFabricante
+            riesgoTotal
+            solicitudId
+            productoId
+            observaciones
+            estado
+            acondicionadorDistinto
           }
         }
       }
-    `);
+    `;
 
-    return { result, loading, error };
-  },
-  watch: {
-    result(newVal) {
-      if (newVal) {
-        const solicitud = newVal.solicituds.items.find(item => item.solicitudId === this.solicitudId);
-        this.productData = solicitud?.producto;
-        this.documentData = solicitud?.documentos || [];
+    const { result, loading, error } = useQuery(GET_EVALUACIONREGISTROPRODUCTO, { solicitudId });
+
+    const solicitudData = computed(() => result.value?.solicituds.items[0] || null);
+    const productData = computed(() => solicitudData.value?.producto || null);
+    const documentData = computed(() => solicitudData.value?.documentos || []);
+
+    const APROBAR_PRODUCTO = gql`
+      mutation AprobarProducto($solicitudId: Int!, $productoId: Int!) {
+        updateSolicitud(
+          solicitudInput: {
+            acondicionadorDistinto: true
+            esExportado: true
+            estado: "en proceso"
+            observaciones: "null"
+            productoId: $productoId
+            riesgoTotal: 0
+            solicitudId: $solicitudId
+            titularFabricante: true
+            titularRepresentacion: true
+          }
+        ) {
+          solicitud {
+            productoId
+            solicitudId
+            estado
+          }
+        }
       }
-    }
-  },
-  methods: {
-    toggleSidebar() {
-      this.$emit('toggle-sidebar');
-    },
-    filteredDocuments(...documentTypes) {
-      return this.documentData.filter(document => documentTypes.includes(document.tipoDocumento.tipoDocumento1));
-    },
-    approveProduct() {
-      // Lógica de aprobación
-    },
-    rejectProduct() {
-      // Lógica de rechazo
-    }
-  }
-};
+    `;
 
+    const { mutate: approveProductMutation, loading: approveLoading, error: approveError } = useMutation(APROBAR_PRODUCTO);
+
+    const approveProduct = () => {
+      if (!solicitudData.value) {
+        console.error('No hay datos de solicitud disponibles');
+        return;
+      }
+
+      const productoId = parseInt(solicitudData.value.productoId, 10);
+      const solicitudIdValue = parseInt(solicitudData.value.solicitudId, 10);
+      console.log('Aprobando PRO con ID:', APROBAR_PRODUCTO);
+      console.log('Aprobando solicitud con ID:', solicitudIdValue);
+      console.log('Aprobando PRO con ID:', productoId);
+
+
+      approveProductMutation({
+        variables: {
+          solicitudId: solicitudIdValue,
+          productoId: productoId,
+        },
+      })
+      .then((response) => {
+        console.log('Producto aprobado:', response.data.updateSolicitud.solicitud);
+      })
+      .catch((error) => {
+        console.error('Error al aprobar el producto:', error.graphQLErrors || error);
+      });
+    };
+
+    const rejectProduct = () => {
+      // Implementa la lógica para rechazar el producto aquí
+      console.log('Rechazar producto');
+    };
+
+    const toggleSidebar = () => {
+      // Implementa la lógica para alternar la barra lateral
+    };
+
+    const filteredDocuments = (...documentTypes) => {
+      return documentData.value.filter(document => documentTypes.includes(document.tipoDocumento.tipoDocumento1));
+    };
+
+    return {
+      productData,
+      documentData,
+      solicitudId,
+      loading,
+      error,
+      approveProduct,
+      rejectProduct,
+      toggleSidebar,
+      filteredDocuments,
+      approveLoading,
+      approveError,
+    };
+  }
+});
 </script>
+
+
 <style scoped>
 .app-container {
   display: flex;
@@ -228,10 +290,10 @@ export default {
   font-size: 1rem; /* Tamaño de fuente más grande para los botones de descarga */
   text-align: center; /* Centrar texto en los botones */
 }
+
 .btn-approval {
   flex: 1; /* Ocupa el mismo espacio disponible */
   margin-right: 10px; /* Espacio entre los botones */
   font-size: 1.2rem; /* Aumenta el tamaño de fuente */
 }
-
 </style>
