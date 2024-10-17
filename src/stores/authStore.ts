@@ -8,7 +8,7 @@ interface JwtPayload {
 export const useAuthStore = defineStore({
     id: 'auth',
     state: () => ({
-        accessToken: JSON.parse(localStorage.getItem("accessToken") || "null") as string | null,
+        accessToken: localStorage.getItem("accessToken") as string | null,
     }),
     actions: {
         login(token: string) {
