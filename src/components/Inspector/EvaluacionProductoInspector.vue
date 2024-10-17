@@ -177,10 +177,9 @@ export default defineComponent({
           solicitudInput: {
             acondicionadorDistinto: true
             esExportado: true
-            estado: "en proceso"
+            estado: "aceptada"
             observaciones: "null"
             productoId: $productoId
-            riesgoTotal: 0
             solicitudId: $solicitudId
             titularFabricante: true
             titularRepresentacion: true
@@ -211,10 +210,8 @@ export default defineComponent({
 
 
       approveProductMutation({
-        variables: {
           solicitudId: solicitudIdValue,
           productoId: productoId,
-        },
       })
       .then((response) => {
         console.log('Producto aprobado:', response.data.updateSolicitud.solicitud);
