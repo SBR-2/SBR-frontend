@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/AdminRoutes';
+import InspectorRoutes from './routes/InspectorRoutes';
 import { useAuthStore } from '../stores/authStore';
 import { useToast } from 'vue-toastification';
 
@@ -8,6 +9,7 @@ import { useToast } from 'vue-toastification';
 const routes: Array<RouteRecordRaw> = [
     ...authRoutes,
     ...adminRoutes,
+    ...InspectorRoutes,
     {
         path: '/', // Ruta por defecto
         name: 'EjemploDeRuta',
