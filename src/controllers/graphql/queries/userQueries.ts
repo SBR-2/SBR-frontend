@@ -1,23 +1,23 @@
 import { gql } from "graphql-tag";
 
 export const GET_USUARIOS = gql`
-  query get {
-    usuarios {
-      items {
+  query getUsuarios($skip: Int, $take: Int) {
+    usuarios(skip: $skip, take: $take) {
+        items {
         usuarioId
         nombre
         correo
         entidad {
-          nombre
+            nombre
         }
         rol {
-          rol1
+            rol1
         }
         estado
         fechaCreacion
-      }
+        }
     }
-  }
+    }
 `;
 
 export const DELETE_USUARIO = gql`

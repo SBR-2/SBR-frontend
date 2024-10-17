@@ -14,15 +14,18 @@ export const useAuthStore = defineStore({
     actions: {
         login(token: string) {
             this.accessToken = token;
-            localStorage.setItem("accessToken", JSON.stringify(token));
+            localStorage.setItem("accessToken", token);
         },
         logout() {
             this.accessToken = null;
             localStorage.removeItem("accessToken");
+
+            this.rolUsuario = null;
+            localStorage.removeItem("rolUsuario");
         },
         setRole(rol: string) {
             this.rolUsuario = rol;
-            localStorage.setItem("rolUsuario", JSON.stringify(rol));
+            localStorage.setItem("rolUsuario", rol);
         }
     },
     getters: {

@@ -3,17 +3,13 @@
     <div class="user-list-container">
       <h4 class="titulo d-flex">Lista de Usuarios</h4>
       <!-- Barra de búsqueda -->
-      <input
-        type="text"
-        v-model="searchTerm"
-        placeholder="Buscar"
-        class="search-bar"
-      />
+      <input type="text" v-model="searchTerm" placeholder="Buscar" class="search-bar" />
       <div class="d-flex mb-3">
         <router-link to="/crearUsuario">
           <button class="btn btn-edit">Crear Usuario</button>
         </router-link>
       </div>
+
       <table v-if="filteredUsers.length > 0">
         <thead>
           <tr>
@@ -30,33 +26,19 @@
           <tr v-for="usuario in filteredUsers" :key="usuario.usuarioId">
             <td>{{ usuario.nombre }}</td>
             <td>{{ usuario.correo }}</td>
-            <td>
-              {{ usuario.entidad ? usuario.entidad.nombre : "Sin entidad" }}
-            </td>
+            <td>{{ usuario.entidad ? usuario.entidad.nombre : "Sin entidad" }}</td>
             <td>{{ usuario.rol ? usuario.rol.rol1 : "Sin rol" }}</td>
-            <td
-              :style="{
-                color:
-                  usuario.estado === true || usuario.estado === 'true'
-                    ? 'green'
-                    : 'red',
-                fontWeight: 'bold',
-              }"
-            >
-              {{
-                usuario.estado == "true" || usuario.estado === true
-                  ? "Activo"
-                  : "Inactivo"
-              }}
+            <td :style="{
+              color: usuario.estado === true || usuario.estado === 'true'
+                ? 'green'
+                : 'red',
+              fontWeight: 'bold',
+            }">
+              {{ usuario.estado == "true" || usuario.estado === true ? "Activo" : "Inactivo" }}
             </td>
             <td>{{ formatDate(usuario.fechaCreacion) }}</td>
             <td class="acciones-cell">
-              <router-link
-                :to="{
-                  name: 'editarUsuario',
-                  params: { userId: usuario.usuarioId },
-                }"
-              >
+              <router-link :to="{ name: 'editarUsuario', params: { userId: usuario.usuarioId } }">
                 <button class="btn btn-edit">Editar</button>
               </router-link>
               <button class="btn btn-delete" @click="deleteUsuario(usuario)">
@@ -68,18 +50,19 @@
       </table>
       <p v-else-if="loading">Cargando...</p>
       <p v-else>No se han encontrado usuarios</p>
+      <PanelPrincipal />
     </div>
-    <PanelPrincipal />
   </div>
 </template>
 
 <script>
 import PanelPrincipal from "./panel-principal.vue";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import { useToast } from "vue-toastification";
 import router from "../../router/router";
 import { GET_USUARIOS, DELETE_USUARIO } from "../../controllers/graphql/queries/userQueries";
+import { formatDate } from "@/utils/formatDate";
 
 export default {
   components: {
@@ -91,13 +74,18 @@ export default {
     const error = ref(null);
     const toast = useToast();
     const searchTerm = ref("");
+    const skip = ref(0);
+    const take = ref(50);
 
-    // Fetch usuarios
-    const { onResult, onError, refetch } = useQuery(GET_USUARIOS);
+    const { onResult, onError, refetch } = useQuery(GET_USUARIOS, {
+      skip: skip.value,
+      take: take.value,
+    });
 
     onResult((response) => {
       loading.value = false;
-      result.value = response.data?.usuarios || null;
+      result.value = response.data?.usuarios?.items || null;
+      console.log("Usuarios:", result.value);
     });
 
     onError((queryError) => {
@@ -106,20 +94,17 @@ export default {
       toast.error(queryError.message || "Error al recuperar los datos");
     });
 
-    // Función para formatear la fecha
-    const formatDate = (dateString) => {
-      const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(dateString).toLocaleDateString("es-ES", options);
-    };
+    onMounted(() => {
+      refetch();
+    });
 
-    // Computed property para filtrar usuarios
+    // Computed property Para filtrar los usuarios
     const filteredUsers = computed(() => {
-      if (!result.value || !result.value.items) return [];
-      if (!searchTerm.value) return result.value.items;
+      if (!result.value) return [];
+      if (!searchTerm.value) return result.value;
 
       const term = searchTerm.value.toLowerCase();
-
-      return result.value.items.filter((usuario) => {
+      return result.value.filter((usuario) => {
         return (
           usuario.nombre.toLowerCase().includes(term) ||
           usuario.correo.toLowerCase().includes(term) ||
@@ -130,11 +115,8 @@ export default {
       });
     });
 
-    // Mutation para eliminar usuario
     const { mutate: deleteUsuarioMutation } = useMutation(DELETE_USUARIO);
-
     const deleteUsuario = (usuario) => {
-      console.log(usuario);
       if (
         confirm(
           `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre}"?`
@@ -167,6 +149,8 @@ export default {
       deleteUsuario,
       searchTerm,
       filteredUsers,
+      skip,
+      take,
     };
   },
 };
@@ -202,7 +186,7 @@ h1 {
 
 .search-bar::placeholder {
   color: #888;
-  opacity: 1; /* Asegura que el placeholder sea visible en todos los navegadores */
+  opacity: 1;
 }
 
 table {
