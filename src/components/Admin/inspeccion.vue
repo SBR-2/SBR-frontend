@@ -53,7 +53,7 @@
                   :key="inspector.usuarioId"
                   :value="inspector.usuarioId"
                 >
-                  {{ inspector.nombre }} - {{ inspector.estado }}
+                {{ inspector.nombre }} - {{ inspector.estado === "true" ? 'Activo' : 'Inactivo' }}
                 </option>
               </select>
               <span v-if="solicitud.isAssigning" class="loading-text">
@@ -103,15 +103,14 @@ const GET_FICHAS_USUARIO = gql`
 
 const GET_ALL_INSPECTORES = gql`
   query viewInspector {
-    usuarios(where: { rolId: { eq: 3 } }) {
-      items {
-        usuarioId
-        nombre
-        correo
-        estado
-      }
+  usuarios(where: { rolId: { eq: "3" } }) {
+    items {
+      usuarioId
+      nombre
+      estado
     }
   }
+}
 `;
 
 const UPDATE_FICHA = gql`
@@ -269,20 +268,18 @@ export default defineComponent({
 
       solicitud.isAssigning = true;
 
-      const input = {
+      const updateFichaInput = {
         fichaId: solicitud.fichaId,
         inspectorId: parseInt(solicitud.selectedInspectorId),
-        // Solo incluye los campos que deseas actualizar
-        // Omite los campos que no necesitas actualizar
       };
 
       try {
-        await updateFicha({ variables: { input } });
-        // La notificación de éxito ya se maneja en onCompleted
+        await updateFicha({
+          input: updateFichaInput,
+        });
       } catch (err) {
-        // Mostrar error usando Toast
         toast.error(`Error al asignar inspector: ${err.message}`);
-        console.error(err);
+        console.error('Mutation error:', err);
       } finally {
         solicitud.isAssigning = false;
       }
@@ -302,9 +299,7 @@ export default defineComponent({
 });
 </script>
 
-
 <style scoped>
-
 .container {
   margin-left: 8%;
   margin-top: 10%;
