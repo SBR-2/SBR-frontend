@@ -63,24 +63,23 @@ export default {
   setup() {
     // Definir el query GraphQL
     const GET_SOLICITUD = gql`
-      query GET_SOLICITUD {
-        solicituds {
-          items {
-            solicitudId
-            producto {
-              usuario {
+      query GET_EVALUACIONPRODUCTO {
+      solicituds(where: { estado: { eq: "en proceso" } }) {
+        items {
+          producto {
+            nombre
+            usuario {
+              entidad {
                 nombre
-                correo
-                entidad {
-                  nombre
-                }
               }
+              correo
             }
-            fechaCreacion
           }
+          fechaCreacion
+          estado
         }
       }
-    `;
+    }   `;
 
     // Usar el hook de Apollo para hacer la query
     const { result, loading, error } = useQuery(GET_SOLICITUD);

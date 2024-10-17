@@ -4,7 +4,7 @@ import { setContext } from "@apollo/client/link/context";
 
 // Obtener variable de entorno o endpoint default
 const apiUrl =
-  import.meta.env.VITE_GRAPHQL_API_URL || "http://localhost:4000/graphql";
+  import.meta.env.VITE_GRAPHQL_API_URL || "https://localhost:7289/graphql/";
 
 const httpLink = createHttpLink({
   uri: apiUrl,

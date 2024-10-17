@@ -63,22 +63,23 @@
     setup() {
       // Definir el query de GraphQL para obtener los datos
       const GET_EVALUACION_PRODUCTO = gql`
-        query GET_EVALUACIONPRODUCTO {
-          solicituds {
-            items {
-              producto {
-                nombre
-                usuario {
-                  entidad {
-                    nombre
-                  }
-                  correo
-                }
-              }
-              fechaCreacion
-            }
+         query GET_LISTA_PRODUCTOS {
+  solicituds(where: { estado: { eq: "en proceso" } }) {
+    items {
+      producto {
+        nombre
+        usuario {
+          entidad {
+            nombre
           }
+          correo
         }
+      }
+      fechaCreacion
+      estado
+    }
+  }
+} 
       `;
   
       // Usar el hook de Apollo para hacer la query
