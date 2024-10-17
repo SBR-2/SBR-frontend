@@ -15,3 +15,19 @@ mutation updateFicha($input: UpdateFichaInput!) {
   }
 }
 `;
+
+export const CREAR_USUARIO_MUTATION = gql`
+    mutation crearUsuario($input: AddUsuarioInput!) {
+      addUsuario(input: $input) {
+        usuario {
+          usuarioId
+          nombre
+          correo
+          entidadId
+          estado
+          rolId
+          fechaCreacion
+        }
+      }
+    }
+  `;

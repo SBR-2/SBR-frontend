@@ -54,23 +54,7 @@
   import { useMutation } from '@vue/apollo-composable';
   import { useToast } from 'vue-toastification';
   import router from '../../router/router';
-  
-  // Mutación para crear un nuevo usuario
-  const CREAR_USUARIO_MUTATION = gql`
-    mutation crearUsuario($input: AddUsuarioInput!) {
-      addUsuario(input: $input) {
-        usuario {
-          usuarioId
-          nombre
-          correo
-          entidadId
-          estado
-          rolId
-          fechaCreacion
-        }
-      }
-    }
-  `;
+  import { CREAR_USUARIO_MUTATION } from '../../controllers/graphql/mutations/admin/adminMutations';
   
   export default {
     components: {
