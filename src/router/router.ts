@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import authRoutes from "./routes/authRoutes";
 import adminRoutes from './routes/AdminRoutes';
+import userRoutes from './routes/userRoutes';
 import InspectorRoutes from "./routes/InspectorRoutes";
 import { useAuthStore } from "../stores/authStore";
 import { useToast } from "vue-toastification";
@@ -10,6 +11,7 @@ import aplicantRoutes from "./routes/aplicantRoutes";
 const routes: Array<RouteRecordRaw> = [
   ...aplicantRoutes,
   ...authRoutes,
+  ...userRoutes,
   ...InspectorRoutes,
   ...adminRoutes,
   {
