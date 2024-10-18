@@ -4,8 +4,13 @@ const authRoutes: Array<RouteRecordRaw> = [
     {
         path: '/login',
         name: 'Login',
-        component: () => import('../../views/auth/LogIn.vue')
+        component: () => import('../../components/Auth/LogIn.vue')
     },
+    {
+        path: '/request-account',
+        name: 'RequestAccount',
+        component: () => import('../../components/Auth/RequestAccount.vue')
+    }
 ];
 
 export default authRoutes;
