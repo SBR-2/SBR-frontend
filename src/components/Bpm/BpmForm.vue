@@ -8,22 +8,12 @@
       </button>
     </div>
 
-    <form
-      ref="form.form"
-      class="requires-validation"
-      @submit.prevent="form.nextStep"
-    >
+    <form ref="form.form" class="requires-validation" @submit.prevent="form.nextStep">
       <BpmTabla :detallesEstablecimiento="form.detallesEstablecimiento" />
 
       <div v-if="form.currentStep === 7" class="mb-4 text-center">
         <label for="observaciones" class="form-label">Observaciones</label>
-        <textarea
-          class="form-control mx-auto w-50"
-          rows="2"
-          cols="5"
-          name=""
-          id=""
-        ></textarea>
+        <textarea class="form-control mx-auto w-50" rows="2" cols="5" name="" id=""></textarea>
       </div>
 
       <button class="btn btn-primary" type="submit">

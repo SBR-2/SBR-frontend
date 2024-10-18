@@ -22,6 +22,7 @@
               id="nombre"
               class="form-control"
               placeholder="Fabrica Los Platanitos"
+              v-model="form.establecimientoForm.nombre"
               required
             />
           </div>
@@ -36,6 +37,7 @@
           id="calle"
           class="form-control"
           placeholder="Av. 27 de Febrero"
+          v-model="form.establecimientoForm.calle"
         />
       </div>
 
@@ -47,6 +49,7 @@
           id="nombreProducto"
           class="form-control"
           placeholder="92"
+          v-model="form.establecimientoForm.numero"
         />
       </div>
       <!-- RNC -->
@@ -58,13 +61,15 @@
           class="form-control"
           placeholder="130-99999"
           pattern="[0-9]{3}-[0-9]{5}"
+          v-model="form.establecimientoForm.rnc"
         />
       </div>
 
       <!-- Select Provincia -->
       <div class="mb-3">
         <label for="provincia" class="form-label">Provincia</label>
-        <select id="provincia" class="form-select">
+        <select id="provincia" class="form-select"
+          v-model="form.establecimientoForm.provincia">
           <option selected>Seleccionar</option>
           <option value="1">Santo Domingo</option>
           <option value="2">Santiago</option>
@@ -88,7 +93,8 @@
       <!-- Select Municipio -->
       <div class="mb-3">
         <label for="municipio" class="form-label">Municipio</label>
-        <select id="municipio" class="form-select">
+        <select id="municipio" class="form-select"
+          v-model="form.establecimientoForm.municipio">
           <option selected>Seleccionar</option>
           <option value="1">Santo Domingo</option>
           <option value="2">Santiago</option>
@@ -106,6 +112,7 @@
           class="form-control"
           placeholder="809-555-5555"
           pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+          v-model="form.establecimientoForm.telefono"
           required
         />
       </div>
@@ -115,7 +122,8 @@
         <label for="fechaInicio" class="form-label"
           >Fecha de Inicio de Operaciones</label
         >
-        <input type="date" id="fechaInicio" class="form-control" required />
+        <input type="date" id="fechaInicio" class="form-control" required
+        v-model="form.establecimientoForm.fechaInicioOperaciones" />
       </div>
 
       <!-- Fecha vencimiento de Permiso Sanitario -->
@@ -128,6 +136,7 @@
           id="fechaVencimiento"
           class="form-control"
           required
+          v-model="form.establecimientoForm.fechaVencimientoPermisoSanitario"
         />
       </div>
 
@@ -141,6 +150,7 @@
           id="numeroProductos"
           class="form-control"
           required
+          v-model="form.establecimientoForm.numeroProductosElaborados"
         />
       </div>
 
@@ -152,6 +162,7 @@
           id="produccionAnual"
           class="form-control"
           required
+          v-model="form.establecimientoForm.produccionAnual"
         />
       </div>
 
@@ -165,6 +176,7 @@
           id="numeroEmpleados"
           class="form-control"
           required
+          v-model="form.establecimientoForm.numeroEmpleados"
         />
       </div>
       <!-- Tipo de Comercializacion -->
@@ -172,7 +184,8 @@
         <label for="tipoComercializacion" class="form-label"
           >Tipo de Comercialización</label
         >
-        <select id="tipoComercializacion" class="form-select">
+        <select id="tipoComercializacion" class="form-select"
+          v-model="form.establecimientoForm.tipoComercializacion">
           <option selected>Seleccionar</option>
           <option value="1">Nacional</option>
           <option value="2">Internacional</option>
@@ -182,7 +195,8 @@
       <!-- Mercado Objetivo -->
       <div class="mb-3">
         <label for="mercadoObjetivo" class="form-label">Mercado Objetivo</label>
-        <select id="mercadoObjetivo" class="form-select">
+        <select id="mercadoObjetivo" class="form-select"
+          v-model="form.establecimientoForm.mercadoObjetivo">
           <option selected>Seleccionar</option>
           <option value="1">Local</option>
           <option value="2">Regional</option>
@@ -198,13 +212,15 @@
         <label for="fechaInspeccion" class="form-label"
           >Fecha de Ultima Inspección</label
         >
-        <input type="date" id="fechaInspeccion" class="form-control" required />
+        <input type="date" id="fechaInspeccion" class="form-control" required
+        v-model="form.establecimientoForm.fechaUltimaInspeccion"/>
       </div>
 
       <!-- Nombre Oficial DPS -->
       <div class="mb-3">
         <label for="nombreOficial" class="form-label">Nombre Oficial DPS</label>
-        <input type="text" id="nombreOficial" class="form-control" required />
+        <input type="text" id="nombreOficial" class="form-control" required 
+        v-model="form.establecimientoForm.nombreOficialDPS"/>
       </div>
 
       <div class="mb-3">
@@ -218,6 +234,7 @@
           min="0"
           max="100"
           required
+          v-model="form.establecimientoForm.calificacionUltimaInspeccion"
         />
       </div>
       <!-- Nombre Tecnico Digemaps -->
@@ -225,7 +242,8 @@
         <label for="nombreTecnico" class="form-label"
           >Nombre Técnico Digemaps</label
         >
-        <input type="text" id="nombreTecnico" class="form-control" required />
+        <input type="text" id="nombreTecnico" class="form-control" required 
+        v-model="form.establecimientoForm.nombreTecnicoDigemaps"/>
       </div>
     </div>
     <div class="mt-5 ms-5">
@@ -237,9 +255,15 @@
 <script>
 import IconBack from "../icons/IconBack.vue";
 import { useRouter } from "vue-router";
+import { useBpmStore } from "@/stores/bpmStore";
 
 export default {
   setup() {
+
+    const form = useBpmStore();
+    
+    console.log(form.establecimientoForm);
+    
     const router = useRouter();
 
     const goBack = () => {
@@ -253,6 +277,7 @@ export default {
     return {
       goBack,
       goNext,
+      form,
     };
   },
   components: {
