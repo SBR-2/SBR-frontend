@@ -5,6 +5,7 @@ import { useRouter } from "vue-router";
 import apolloClient from "../../src/apolloClient"; // Asegúrate de ajustar la ruta
 import gql from "graphql-tag";
 import { parse } from "path";
+import { mapeoValores } from "./claves";
 
 const GET_PRODUCTS = gql`
   query us($usuarioId: Int!) {
@@ -526,7 +527,10 @@ export const useProductFormStore = defineStore("productForm", () => {
 
       for (const key in archivos) {
         if (archivos[key]) {
-          await uploadFile(archivos[key], 1, parse);
+          // Obtener el valor entero desde el objeto de mapeo
+          const valorEntero = mapeoValores[key as keyof typeof mapeoValores] || 1; // Valor por defecto en caso de que la clave no esté en el mapeo
+      
+          await uploadFile(archivos[key], valorEntero, parse);
         }
       }
 

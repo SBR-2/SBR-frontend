@@ -253,7 +253,7 @@
 </template>
 
 <script>
-import IconBack from "@/components/Icons/IconBack.vue";
+import IconBack from "../icons/IconBack.vue";
 import { useRouter } from "vue-router";
 import { useBpmStore } from "@/stores/bpmStore";
 

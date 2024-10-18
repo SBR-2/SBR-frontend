@@ -17,17 +17,17 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: 'PanelPrincipal',
-        component: () => import('../components/admin/panel-principal.vue')
+        component: () => import('../components/Admin/panel-principal.vue')
     },
     {
         path: '/',
         name: 'dashboard',
-        component: () => import('../components/admin/dashboard.vue')
+        component: () => import('../components/Admin/dashboard.vue')
     },
     {
         path: '/',
         name: 'listaUsuarios',
-        component: () => import('../components/admin/listausuario.vue')
+        component: () => import('../components/Admin/listausuario.vue')
     },
     {
         path: '/form',
