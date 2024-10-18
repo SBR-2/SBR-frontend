@@ -5,12 +5,54 @@ import gql from "graphql-tag";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { reactive } from "vue";
+import { useMutation } from "@vue/apollo-composable";
 
 interface Respuesta {
   preguntaId: number;
   respuesta: string;
   observacion: string;
 }
+
+const ADD_ESTABLECIMIENTO = gql`
+mutation fgfg($input: AddEstablecimientoInput!) {
+  addEstablecimiento(input: $input) {
+    establecimiento {
+      calUltimaInspeccion
+      comercializacion
+      establecimientoId
+      inicioOperaciones
+      mercadoObjetivoId
+      municipioId
+      nombre
+      nombreDigemaps
+      nombreDps
+      noSanitario
+      numEmpleados
+      numero
+      numProductosElaborados
+      produccionAnual
+      rnc
+      telefono
+      ultimaInspeccion
+      vencimientoSanitario
+    }
+  }
+}
+`
+
+const ADD_RESPUESTA = gql`mutation registrarRespuesta($respuesta: AddRespuestaInput!) {
+  addRespuesta(input: $respuesta) {
+    respuestum {
+      descripcion
+      estado
+      fichaId
+      observacion
+      preguntaId
+      respuestaId
+      valorId
+    }
+  }
+}`;
 
 export const useBpmStore = defineStore("bpm", () => {
   const bpmId = ref(0);
@@ -21,29 +63,29 @@ export const useBpmStore = defineStore("bpm", () => {
 
   const router = useRouter();
 
-    const establecimientoForm = reactive<any>({
-      nombre: '',
-      calle: '',
-      numero: '',
-      rnc: '',
-      provincia: '',
-      municipio: '',
-      telefono: '',
-      fechaInicioOperaciones: '',
-      fechaVencimientoPermisoSanitario: '',
-      numeroProductosElaborados: 0,
-      produccionAnual: 0,
-      numeroEmpleados: 0,
-      tipoComercializacion: '',
-      mercadoObjetivo: '',
-      fechaUltimaInspeccion: '',
-      fechaProximaInspeccion: '',
-      nombreOficialDPS: '',
-      nombreTecnicoDigemaps: '',
-      calificacionUltimaInspeccion: 0,
-    });
+  const establecimientoForm = reactive<any>({
+    nombre: '',
+    calle: '',
+    numero: '',
+    rnc: '',
+    provincia: '',
+    municipio: '',
+    telefono: '',
+    fechaInicioOperaciones: '',
+    fechaVencimientoPermisoSanitario: '',
+    numeroProductosElaborados: 0,
+    produccionAnual: 0,
+    numeroEmpleados: 0,
+    tipoComercializacion: '',
+    mercadoObjetivo: '',
+    fechaUltimaInspeccion: '',
+    fechaProximaInspeccion: '',
+    nombreOficialDPS: '',
+    nombreTecnicoDigemaps: '',
+    calificacionUltimaInspeccion: 0,
+  });
 
-    const errors = ref<any>({});
+  const errors = ref<any>({});
 
   fetchGroups();
 
@@ -98,9 +140,76 @@ export const useBpmStore = defineStore("bpm", () => {
     });
   }
 
-  function nextStep() {
+  async function nextStep() {
     console.log("Paso:", currentStep.value);
+    console.log(respuestas);
+
     if (currentStep.value === 7) {
+
+      const respuestasd = respuestas.value.map((respuesta) => {
+        let valorPoint = 0;
+        switch (respuesta.respuesta) {
+          case "CC":
+            valorPoint = 1;
+            break;
+          case "CP":
+            valorPoint = 2;
+            break;
+          case "IT":
+            valorPoint = 3;
+            break;
+          case "NA":
+            valorPoint = 4;
+            break;
+          default:
+            console.warn(`Unexpected response value: ${respuesta.respuesta}`);
+        }
+        return {
+          descripcion: respuesta.observacion,
+          estado: true,
+          fichaId: 1,
+          preguntaId: respuesta.preguntaId,
+          valorId: valorPoint,
+        };
+      });
+  
+      console.log(establecimientoForm);
+  
+      await apolloClient.mutate({
+        mutation: ADD_ESTABLECIMIENTO,
+        variables: {
+          input: {
+            calUltimaInspeccion: establecimientoForm.calificacionUltimaInspeccion,
+            comercializacion: establecimientoForm.tipoComercializacion,
+            inicioOperaciones: establecimientoForm.fechaInicioOperaciones,
+            mercadoObjetivo_id: parseInt(establecimientoForm.mercadoObjetivo),
+            municipioId: parseInt(establecimientoForm.municipio),
+            nombre: establecimientoForm.nombre,
+            nombreDigemaps: establecimientoForm.nombreTecnicoDigemaps,
+            nombreDps: establecimientoForm.nombreOficialDPS,
+            noSanitario: "true",
+            numEmpleados: establecimientoForm.numeroEmpleados,
+            numero: establecimientoForm.numero,
+            numProductosElaborados: establecimientoForm.numeroProductosElaborados,
+            produccionAnual: establecimientoForm.produccionAnual,
+            rnc: establecimientoForm.rnc,
+            telefono: establecimientoForm.telefono,
+            ultimaInspeccion: establecimientoForm.fechaUltimaInspeccion,
+            vencimientoSanitario: establecimientoForm.fechaVencimientoPermisoSanitario,
+          }
+        }
+      });
+  
+      respuestasd.forEach(async (respuesta) => {
+        await apolloClient.mutate({
+          mutation: ADD_RESPUESTA,
+          variables: {
+            respuesta
+          }
+        });
+      });
+
+      
       const todasRespondidas = respuestas.value.every(
         (respuesta: Respuesta) => respuesta.respuesta !== ""
       );
@@ -109,6 +218,7 @@ export const useBpmStore = defineStore("bpm", () => {
       if (!todasRespondidas) {
         console.log("No todas las preguntas han sido respondidas.");
       }
+
       return;
     }
     currentStep.value += 1;
@@ -184,6 +294,7 @@ export const useBpmStore = defineStore("bpm", () => {
   return {
     currentStep,
     detallesEstablecimiento,
+    establecimientoForm,
     form,
     fetchGroups,
     nextStep,
