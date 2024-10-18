@@ -4,9 +4,11 @@ import adminRoutes from './routes/AdminRoutes';
 import InspectorRoutes from "./routes/InspectorRoutes";
 import { useAuthStore } from "../stores/authStore";
 import { useToast } from "vue-toastification";
+import aplicantRoutes from "./routes/aplicantRoutes";
 
 // Definición de las rutas
 const routes: Array<RouteRecordRaw> = [
+  ...aplicantRoutes,
   ...authRoutes,
   ...InspectorRoutes,
   ...adminRoutes,

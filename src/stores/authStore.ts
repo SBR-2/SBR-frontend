@@ -9,7 +9,8 @@ export const useAuthStore = defineStore({
     id: 'auth',
     state: () => ({
         accessToken: localStorage.getItem("accessToken") as string | null,
-        rolUsuario: localStorage.getItem("rolUsuario") as string | null
+        rolUsuario: localStorage.getItem("rolUsuario") as string | null,
+        userId: localStorage.getItem("userId") as string | null
     }),
     actions: {
         login(token: string) {
@@ -26,6 +27,10 @@ export const useAuthStore = defineStore({
         setRole(rol: string) {
             this.rolUsuario = rol;
             localStorage.setItem("rolUsuario", rol);
+        },
+        setUserId(userId: string) {
+            this.userId = userId;
+            localStorage.setItem("userId", userId);
         }
     },
     getters: {
@@ -49,6 +54,9 @@ export const useAuthStore = defineStore({
         },
         getRole(): string | null {
             return this.rolUsuario;
+        },
+        getUserId(): string | null {
+            return this.userId;
         }
     },
 });

@@ -104,13 +104,23 @@ export default defineComponent({
                     if (user) {
                         // Guardar el rol en el estado global
                         let userRole = user.rol.rol1;
-                        console.log('User role:', userRole);
                         authStore.setRole(userRole);
+                        
+                        let userId = user.usuarioId;
+                        authStore.setUserId(userId);
+
                         toast.success('Login exitoso!');
 
                         if (userRole === 'Admin') {
                             router.push('/admin/dashboard');
-                        } else {
+                        }
+                        else if (userRole === 'Applicant') {
+                            router.push('/solicitante/lista-productos');
+                        }
+                        else if (userRole === 'Inspector') {
+                            router.push('/inspectordashboard');
+                        }
+                        else {
                             router.push('/admin');
                         }
                     }
