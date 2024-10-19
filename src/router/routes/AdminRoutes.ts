@@ -7,8 +7,8 @@ const adminRoutes: Array<RouteRecordRaw> = [
         component: () => import('../../components/Admin/panel-principal.vue')
     },
     {
-        path: '/dashboard',
-        name: 'dashboard',
+        path: '/admin/dashboard',
+        name: 'AdminDashboard',
         component: () => import('../../components/Admin/dashboard.vue')
     },
     {
@@ -27,7 +27,7 @@ const adminRoutes: Array<RouteRecordRaw> = [
         component: () => import('../../components/Admin/evaluacion.vue')
     },
     {
-        path: '/editarUsuario',
+        path: '/editarUsuario/:userId',
         name: 'editarUsuario',
         component: () => import('../../components/Admin/editarUsuario.vue')
     },
@@ -41,10 +41,6 @@ const adminRoutes: Array<RouteRecordRaw> = [
         name: 'crearUsuario',
         component: () => import('../../components/Admin/crearUsuario.vue')
     },
-    
-    
-
-
 ];
 
 export default adminRoutes;

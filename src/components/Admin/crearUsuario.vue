@@ -15,15 +15,14 @@
                 <div class="col-md-6 mb-3">
                   <label for="rol" class="form-label d-flex">Rol*</label>
                   <select class="form-select" id="rol" v-model="userData.rolId" required>
-                    <option value="3">Evaluador</option>
-                    <option value="2">Inspector</option>
+                    <option value="3">Inspector</option>
+                    <option value="4">Evaluador</option>
                   </select>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="estado" class="form-label d-flex">Estado*</label>
                   <select class="form-select" id="estado" v-model="userData.estado" required>
                     <option value="true">Activo</option>
-                    <option value="false">Inactivo</option>
                   </select>
                 </div>
               </div>
@@ -86,7 +85,6 @@
   
       const { mutate: crearUsuario } = useMutation(CREAR_USUARIO_MUTATION);
       const toast = useToast();
-  
       const crearUsuarioHandler = () => {
       const entidadId = parseInt(userData.value.entidadId); // Convertimos a número
   
@@ -94,13 +92,13 @@
   crearUsuario({input:{
       nombre: userData.value.nombre,
       correo: userData.value.correo,
-      rolId: '3', // Aseguramos que sea un númeroq
-      entidadId: 1, // Solo si es válido
+      rolId: userData.value.rolId.toString(), 
+      entidadId: 1, 
       password: '1234',
   }})
     .then(() => {
       toast.success('Usuario creado exitosamente');
-      router.push('/listausuario.vue'); // Redirigir a la lista de usuarios
+      router.push('/listaUsuarios'); // Redirigir a la lista de usuarios
     })
     .catch((error) => {
       console.error("Error al crear usuario:", error);
