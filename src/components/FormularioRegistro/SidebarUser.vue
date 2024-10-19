@@ -31,17 +31,7 @@
                   class="img-fluid icon"
                 />
                 <i button type="button" class="fas fa-clipboard-check"></i>
-                Cosa 1
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">
-                <img
-                  :src="'/lupa.svg'"
-                  alt="list Logo"
-                  class="img-fluid icon"
-                />
-                <i button type="button" class="fas fa-search"></i> Cosa 2
+                Dashboard
               </a>
             </li>
           </ul>
