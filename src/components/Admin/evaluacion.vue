@@ -53,11 +53,9 @@
                   }}
                 </option>
                 <option
-                  v-for="evaluador in evaluadores.filter(
-                    (e) => e.estado === 'true'
-                  )"
-                  :key="evaluador.id"
-                  :value="evaluador.id"
+                  v-for="evaluador in evaluadores.filter((e) => e.estado === 'true')"
+                  :key="evaluador.usuarioId"
+                  :value="evaluador.usuarioId"
                 >
                   {{ evaluador.nombre }}
                 </option>
@@ -79,100 +77,123 @@ import { ref, computed, watch } from "vue";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import gql from "graphql-tag";
 import PanelPrincipal from "./panel-principal.vue";
+import { useToast } from "vue-toastification";
 
 export default {
   components: {
     PanelPrincipal,
   },
   setup() {
+    const toast = useToast();
     const searchTerm = ref("");
     const selectedEvaluador = ref({});
     const isUpdating = ref(false);
+    const localSolicitudes = ref([]); // Nueva ref para manejar las solicitudes localmente
 
-    // Query para obtener las solicitudes
+    // Consulta para obtener solicitudes
     const SOLICITUDES_QUERY = gql`
-      query evaluador {
-        solicituds(where: { estado: { eq: "en proceso" } }) {
-          items {
-            producto {
-              nombre
-              usuario {
-                correo
-                nombre
-                entidad {
-                  direccion
-                  nombre
-                }
-              }
-            }
-            fechaCreacion
-            estado
-            solicitudId
+     query evaluador {
+  solicituds(
+    where: { estado: { eq: "en proceso" }, and: { evaluador: { eq: null } } }
+  ) {
+    items {
+      solicitudId
+      producto {
+        nombre
+        usuario {
+          correo
+          nombre
+          entidad {
+            direccion
+            nombre
           }
         }
       }
+      fechaCreacion
+      estado
+      evaluador
+    }
+  }
+}
     `;
 
-    // Usamos useQuery para obtener el resultado y loading
     const { result: solicitudesResult, loading } = useQuery(SOLICITUDES_QUERY);
 
-    // Computed para mapear las solicitudes
-    const solicitudes = computed(() => solicitudesResult.value?.solicituds.items || []);
+    // Actualizar localSolicitudes cuando se obtengan los resultados
+    watch(solicitudesResult, (newResult) => {
+      if (newResult?.solicituds?.items) {
+        localSolicitudes.value = [...newResult.solicituds.items];
+      }
+    });
 
-    // Query para obtener los evaluadores
+    // Consulta para obtener evaluadores
     const EVALUADORES_QUERY = gql`
       query verEvaluador {
         usuarios(where: { rolId: { eq: "4" } }) {
           items {
-            rol {
-              usuarios {
-                estado
-                nombre
-              }
-            }
+            usuarioId
+            nombre
+            estado
           }
         }
       }
     `;
 
     const { result: evaluadoresResult } = useQuery(EVALUADORES_QUERY);
+    const evaluadores = computed(
+      () => evaluadoresResult.value?.usuarios.items || []
+    );
 
-    // Computed para los evaluadores
-    const evaluadores = computed(() => evaluadoresResult.value?.usuarios.items || []);
-
-    // Mutation para actualizar la solicitud
+    // Mutación para asignar evaluador
     const UPDATE_SOLICITUD_MUTATION = gql`
-      mutation soliciutdEvaluador($evaluadorId: ID!, $solicitudId: ID!) {
+      mutation asignarEvaluador($evaluadorId: Int!, $solicitudId: Int!) {
         asignarEvaluadorASolicitud(
           input: { solicitudInput: { evaluadorId: $evaluadorId, solicitudId: $solicitudId } }
         ) {
           solicitud {
             solicitudId
-            evaluadorId
+            evaluador
             estado
-            productoId
             fechaCreacion
+            riesgoTotal
+            observaciones
           }
         }
       }
     `;
 
-    const { mutate: asignarEvaluadorASolicitud } = useMutation(UPDATE_SOLICITUD_MUTATION);
-    // Función para actualizar la solicitud
-    const updateSolicitud = async ({ evaluadorId, solicitudId }) => {
-      isUpdating.value = true;
-      try {
-        await asignarEvaluadorASolicitud({ evaluadorId, solicitudId });
-      } catch (error) {
-        console.error("Error al asignar evaluador:", error);
-      } finally {
-        isUpdating.value = false;
-      }
-    };
+    const { mutate: asignarEvaluadorASolicitud } = useMutation(
+      UPDATE_SOLICITUD_MUTATION
+    );
 
-    // Filtramos las solicitudes basado en el término de búsqueda
+    // Función para actualizar solicitud con evaluador
+    const updateSolicitud = async ({ evaluadorId, solicitudId }) => {
+  isUpdating.value = true;
+  try {
+    const response = await asignarEvaluadorASolicitud({ evaluadorId, solicitudId });
+    console.log("Respuesta de la mutación:", response);
+    
+    if (response?.data?.asignarEvaluadorASolicitud) {
+      toast.success("Evaluador asignado correctamente!");
+      localSolicitudes.value = localSolicitudes.value.filter(
+        (s) => s.solicitudId !== solicitudId
+      );
+      return true;
+    } else {
+      throw new Error("No se pudo asignar el evaluador.");
+    }
+  } catch (error) {
+    console.error("Error al asignar evaluador:", error);
+    toast.error("Error al asignar evaluador.");
+    return false;
+  } finally {
+    isUpdating.value = false;
+  }
+};
+
+    // Filtro para las solicitudes
     const filteredSolicitudes = computed(() => {
-      return solicitudes.value.filter(
+      return localSolicitudes.value.filter(
         (solicitud) =>
           solicitud.producto.nombre
             .toLowerCase()
@@ -189,9 +210,9 @@ export default {
       );
     });
 
-    // Watcher para inicializar selectedEvaluador cuando las solicitudes cambian
+    // Watch para manejar el estado de selección de evaluador
     watch(
-      solicitudes,
+      localSolicitudes,
       (newSolicitudes) => {
         newSolicitudes.forEach((solicitud) => {
           if (!(solicitud.solicitudId in selectedEvaluador.value)) {
@@ -202,23 +223,27 @@ export default {
       { immediate: true }
     );
 
+    // Función que se ejecuta cuando se selecciona un evaluador
     const asignarEvaluador = async (solicitud) => {
-      const evaluadorId = selectedEvaluador.value[solicitud.solicitudId];
-      if (evaluadorId) {
-        solicitud.isAssigning = true; // Marca la solicitud como asignando
-        try {
-          await updateSolicitud({
-            evaluadorId, // Pasamos el evaluadorId
-            solicitudId: solicitud.solicitudId, // Pasamos el solicitudId
-          });
-          solicitud.isAssigning = false; // Asignación completada
-        } catch (error) {
-          solicitud.isAssigning = false; // Restablecer en caso de error
-          console.error("Error al asignar evaluador:", error);
-        }
-      }
-    };
+  const evaluadorId = selectedEvaluador.value[solicitud.solicitudId];
+  if (evaluadorId) {
+    // Crear una copia de la solicitud para poder modificarla
+    const solicitudModificada = { ...solicitud, isAssigning: true };
+    
+    const success = await updateSolicitud({
+      evaluadorId,
+      solicitudId: solicitud.solicitudId,
+    });
 
+    if (success) {
+      solicitudModificada.isAssigning = false;
+    } else {
+      solicitudModificada.isAssigning = false;
+    }
+  }
+};
+
+    // Formatear la fecha para mostrar en el formato correcto
     const formatDate = (dateString) => {
       return new Date(dateString).toLocaleDateString();
     };
