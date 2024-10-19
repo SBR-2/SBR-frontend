@@ -94,7 +94,7 @@ export default {
     const SOLICITUDES_QUERY = gql`
      query evaluador {
   solicituds(
-    where: { estado: { eq: "en proceso" }, and: { evaluador: { eq: null } } }
+    where: {  and: { evaluador: { eq: null } } }
   ) {
     items {
       solicitudId

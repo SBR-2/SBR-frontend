@@ -62,9 +62,7 @@
                     style="width: 50px; height: 50px"
                   />
                   <div>
-                    <span class="status-number fs-2">{{
-                      evaluacionesPendientesCount
-                    }}</span>
+                    <span class="status-number fs-2">{{ solicitudesPendientesCount }}</span>
                     <span class="d-block">Pendiente</span>
                   </div>
                 </div>
@@ -82,9 +80,7 @@
                     style="width: 50px; height: 50px"
                   />
                   <div>
-                    <span class="status-number fs-2">{{
-                      inspeccionesPendientesCount
-                    }}</span>
+                    <span class="status-number fs-2">{{ fichasPendientesCount }}</span>
                     <span class="d-block">Pendiente</span>
                   </div>
                 </div>
@@ -109,6 +105,32 @@ import { ref } from "vue";
 import { gql } from "graphql-tag";
 import { useQuery } from "@vue/apollo-composable";
 
+// Query para obtener las fichas
+const GET_FICHAS = gql`
+  query verFicha {
+    fichas {
+      items {
+        inspectorId
+        fichaId
+      }
+    }
+  }
+`;
+
+// Query para obtener solicitudes
+const GET_SOLICITUDES = gql`
+  query verSolicitud {
+    solicituds {
+      items {
+        evaluador
+        solicitudId
+        productoId
+      }
+    }
+  }
+`;
+
+// Query para obtener usuarios
 const GET_USUARIOS_ESTADO = gql`
   query GetUsuariosEstado {
     usuarios {
@@ -130,17 +152,17 @@ export default {
     const inactivosCount = ref(0);
     const evaluacionesPendientesCount = ref(0);
     const inspeccionesPendientesCount = ref(0);
+    const fichasPendientesCount = ref(0);
+    const solicitudesPendientesCount = ref(0);
     const notificaciones = ref([]);
 
-    const { result, loading, error, refetch, onResult } =
-      useQuery(GET_USUARIOS_ESTADO);
+    // Obtener usuarios
+    const { result, loading, error, refetch, onResult } = useQuery(GET_USUARIOS_ESTADO);
 
     const processUsuarios = (usuarios) => {
       if (!Array.isArray(usuarios)) return;
       activosCount.value = usuarios.filter((u) => u.estado === "true").length;
-      inactivosCount.value = usuarios.filter(
-        (u) => u.estado === "false"
-      ).length;
+      inactivosCount.value = usuarios.filter((u) => u.estado === "false").length;
 
       // Replace these counts with actual data when available
       evaluacionesPendientesCount.value = 1;
@@ -148,12 +170,38 @@ export default {
     };
 
     onResult((queryResult) => {
-      if (
-        queryResult.data &&
-        queryResult.data.usuarios &&
-        queryResult.data.usuarios.items
-      ) {
+      if (queryResult.data && queryResult.data.usuarios && queryResult.data.usuarios.items) {
         processUsuarios(queryResult.data.usuarios.items);
+      }
+    });
+
+    // Obtener fichas
+    const { result: fichasResult, onResult: onFichasResult } = useQuery(GET_FICHAS);
+
+    const processFichas = (fichas) => {
+      if (!Array.isArray(fichas)) return;
+      // Contamos las fichas que no tienen inspectorId asignado
+      fichasPendientesCount.value = fichas.filter((ficha) => !ficha.inspectorId).length;
+    };
+
+    onFichasResult((queryResult) => {
+      if (queryResult.data && queryResult.data.fichas && queryResult.data.fichas.items) {
+        processFichas(queryResult.data.fichas.items);
+      }
+    });
+
+    // Obtener solicitudes
+    const { result: solicitudesResult, onResult: onSolicitudesResult } = useQuery(GET_SOLICITUDES);
+
+    const processSolicitudes = (solicitudes) => {
+      if (!Array.isArray(solicitudes)) return;
+      // Contamos las solicitudes que no tienen evaluador asignado
+      solicitudesPendientesCount.value = solicitudes.filter((solicitud) => !solicitud.evaluador).length;
+    };
+
+    onSolicitudesResult((queryResult) => {
+      if (queryResult.data && queryResult.data.solicituds && queryResult.data.solicituds.items) {
+        processSolicitudes(queryResult.data.solicituds.items);
       }
     });
 
@@ -181,12 +229,16 @@ export default {
       inactivosCount,
       evaluacionesPendientesCount,
       inspeccionesPendientesCount,
+      fichasPendientesCount,
+      solicitudesPendientesCount,
       notificaciones,
       timeAgo,
     };
   },
 };
 </script>
+
+
 
 <style scoped>
 .container {
