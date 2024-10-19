@@ -15,6 +15,7 @@
                 <div class="col-md-6 mb-3">
                   <label for="rol" class="form-label d-flex">Rol*</label>
                   <select class="form-select" id="rol" v-model="userData.rolId" required>
+                    <option value="1">Administrador</option>
                     <option value="3">Inspector</option>
                     <option value="4">Evaluador</option>
                   </select>

@@ -113,7 +113,11 @@ export default {
       }
     `;
 
+    // Usamos useQuery para obtener el resultado y loading
     const { result: solicitudesResult, loading } = useQuery(SOLICITUDES_QUERY);
+
+    // Computed para mapear las solicitudes
+    const solicitudes = computed(() => solicitudesResult.value?.solicituds.items || []);
 
     // Query para obtener los evaluadores
     const EVALUADORES_QUERY = gql`
@@ -133,34 +137,40 @@ export default {
 
     const { result: evaluadoresResult } = useQuery(EVALUADORES_QUERY);
 
+    // Computed para los evaluadores
+    const evaluadores = computed(() => evaluadoresResult.value?.usuarios.items || []);
+
     // Mutation para actualizar la solicitud
     const UPDATE_SOLICITUD_MUTATION = gql`
-      mutation getEvaluador($solicitudInput: SolicitudInput!) {
-        updateSolicitud(solicitudInput: $solicitudInput) {
+      mutation soliciutdEvaluador($evaluadorId: ID!, $solicitudId: ID!) {
+        asignarEvaluadorASolicitud(
+          input: { solicitudInput: { evaluadorId: $evaluadorId, solicitudId: $solicitudId } }
+        ) {
           solicitud {
-            fichas {
-              evaluador {
-                estado
-                nombre
-              }
-            }
+            solicitudId
+            evaluadorId
+            estado
+            productoId
+            fechaCreacion
           }
         }
       }
     `;
-    // Mutation para actualizar la solicitud
-    const { mutate: updateSolicitud } = useMutation(UPDATE_SOLICITUD_MUTATION);
 
-    const solicitudes = computed(
-      () => solicitudesResult.value?.solicituds.items || []
-    );
-    const evaluadores = computed(() => {
-      const usuarios = evaluadoresResult.value?.usuarios.items || [];
-      console.log(usuarios.flatMap((item) => item.rol.usuarios));
+    const { mutate: asignarEvaluadorASolicitud } = useMutation(UPDATE_SOLICITUD_MUTATION);
+    // Función para actualizar la solicitud
+    const updateSolicitud = async ({ evaluadorId, solicitudId }) => {
+      isUpdating.value = true;
+      try {
+        await asignarEvaluadorASolicitud({ evaluadorId, solicitudId });
+      } catch (error) {
+        console.error("Error al asignar evaluador:", error);
+      } finally {
+        isUpdating.value = false;
+      }
+    };
 
-      return usuarios[0].rol.usuarios;
-    }); 
-
+    // Filtramos las solicitudes basado en el término de búsqueda
     const filteredSolicitudes = computed(() => {
       return solicitudes.value.filter(
         (solicitud) =>
@@ -179,7 +189,7 @@ export default {
       );
     });
 
-    // Watcher para inicializar `selectedEvaluador` cuando las solicitudes cambian
+    // Watcher para inicializar selectedEvaluador cuando las solicitudes cambian
     watch(
       solicitudes,
       (newSolicitudes) => {
@@ -198,16 +208,12 @@ export default {
         solicitud.isAssigning = true; // Marca la solicitud como asignando
         try {
           await updateSolicitud({
-            solicitudInput: {
-              estado: "en proceso",
-              productoId: solicitud.productoId, // Debes asegurarte que productoId sea correcto aquí
-              solicitudId: solicitud.solicitudId,
-              evaluadorId: evaluadorId,
-            },
-          }); 
+            evaluadorId, // Pasamos el evaluadorId
+            solicitudId: solicitud.solicitudId, // Pasamos el solicitudId
+          });
           solicitud.isAssigning = false; // Asignación completada
         } catch (error) {
-          solicitud.isAssigning = false; // Restablecer el estado en caso de error
+          solicitud.isAssigning = false; // Restablecer en caso de error
           console.error("Error al asignar evaluador:", error);
         }
       }

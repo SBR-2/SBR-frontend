@@ -121,6 +121,30 @@ const GET_USUARIOS_ESTADO = gql`
   }
 `;
 
+const GET_EVALUACIONES_PENDIENTES = gql`
+  query GetEvaluacionesPendientes {
+    evaluaciones {
+      items {
+        estado
+        fechaCreacion
+        nombre
+      }
+    }
+  }
+`;
+
+const GET_INSPECCIONES_PENDIENTES = gql`
+  query GetInspeccionesPendientes {
+    inspecciones {
+      items {
+        estado
+        fechaCreacion
+        nombre
+      }
+    }
+  }
+`;
+
 export default {
   components: {
     PanelPrincipal,
@@ -142,8 +166,14 @@ export default {
         (u) => u.estado === "false"
       ).length;
 
-      // Replace these counts with actual data when available
+      // GET_EVALUACIONES_PENDIENTES
+      const { result: evaluacionesResult } = useQuery(GET_EVALUACIONES_PENDIENTES);
+      const evaluaciones = evaluacionesResult.value?.evaluaciones.items || [];
       evaluacionesPendientesCount.value = 1;
+      
+      // GET_iNSPECCION_PENDIENTES
+      const { result: inspeccionesResult } = useQuery(GET_INSPECCIONES_PENDIENTES);
+      const inspecciones = inspeccionesResult.value?.inspecciones.items || [];
       inspeccionesPendientesCount.value = 1;
     };
 
