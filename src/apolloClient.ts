@@ -21,7 +21,8 @@ const uploadLink = createUploadLink({
       headers: {
         ...headers,
         authorization: token ? `Bearer ${token}` : '',
-        'GraphQL-preflight': '1'
+        'GraphQL-preflight': '1',
+        'Content-Type': 'application/json',
       }
     }
   })

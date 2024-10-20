@@ -1,53 +1,51 @@
 <template>
-    <div>
-        <div class="container">
-            <div class="user-list-container">
-                <h4 class="titulo d-flex">Listado de Productos</h4>
-                <div style="display: flex; margin-bottom: 25px;">
-                    <router-link to="/solicitante/agregar-producto">
-                        <button class="btn btn-primary">Agregar Producto</button>
-                    </router-link>
+    <SolicitanteSidebarLayout>
+        <template v-slot:contents>
+                <div class="user-list-container">
+                    <h4 class="titulo d-flex">Listado de Productos</h4>
+                    <div style="display: flex; margin-bottom: 25px;">
+                        <router-link to="/solicitante/agregar-producto">
+                            <button class="btn btn-primary">Agregar Producto</button>
+                        </router-link>
+                    </div>
+                    <!-- Barra de búsqueda -->
+                    <input type="text" v-model="searchTerm" placeholder="Buscar" class="search-bar" />
                 </div>
-                <!-- Barra de búsqueda -->
-                <input type="text" v-model="searchTerm" placeholder="Buscar" class="search-bar" />
-            </div>
-    
-            <!-- Manejo de estados de carga y error para productos -->
-            <div v-if="loadingProductos">
-                <p>Cargando productos...</p>
-            </div>
-            <div v-else>
-                <table>
-                    <thead>
-                        <tr style="color: white">
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Marca</th>
-                            <th>Origen</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-if="filteredProductos.length === 0">
-                            <td colspan="6" class="text-center">No hay productos que mostrar</td>
-                        </tr>
-                        <tr v-else v-for="producto in filteredProductos" :key="producto.productoId">
-                            <td>{{ producto.productoId }}</td>
-                            <td>{{ producto.nombre }}</td>
-                            <td>{{ producto.marca }}</td>
-                            <td>{{ producto.origen || 'Desconocido' }}</td>
-                            <td>{{ producto.estado }}</td>
-                            <td class="acciones-cell">
-                                <button @click="deleteProduct(producto.productoId)" class="btn btn-delete">Eliminar</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <panel-solicitante />
-    </div>
+                <!-- Manejo de estados de carga y error para productos -->
+                <div v-if="loadingProductos">
+                    <p>Cargando productos...</p>
+                </div>
+                <div v-else>
+                    <table>
+                        <thead>
+                            <tr style="color: white">
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Marca</th>
+                                <th>Origen</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="filteredProductos.length === 0">
+                                <td colspan="6" class="text-center">No hay productos que mostrar</td>
+                            </tr>
+                            <tr v-else v-for="producto in filteredProductos" :key="producto.productoId">
+                                <td>{{ producto.productoId }}</td>
+                                <td>{{ producto.nombre }}</td>
+                                <td>{{ producto.marca }}</td>
+                                <td>{{ producto.origen || 'Desconocido' }}</td>
+                                <td>{{ producto.estado }}</td>
+                                <td class="acciones-cell">
+                                    <button @click="deleteProduct(producto.productoId)" class="btn btn-delete">Eliminar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+        </template>
+    </SolicitanteSidebarLayout>
 </template>
 
 <script>
@@ -56,11 +54,11 @@ import { useQuery, useMutation } from '@vue/apollo-composable';
 import { GET_PRODUCTOS } from '../../controllers/graphql/queries/solicitanteQueries';
 import { DELETE_PRODUCTO } from '../../controllers/graphql/mutations/solicitante/solicitanteMutations';
 import { useToast } from 'vue-toastification';
-import panelSolicitante from './panelSolicitante.vue';
+import SolicitanteSidebarLayout from '../ui/layouts/SolicitanteSidebarLayout.vue';
 
 export default {
     components: {
-        panelSolicitante,
+        SolicitanteSidebarLayout,
     },
     setup() {
         const searchTerm = ref('');
@@ -188,5 +186,22 @@ tbody tr:hover {
 
 .btn-delete {
     background-color: #dc3545;
+}
+
+.page-content {
+    margin-top: 5px;
+    padding: 1em;
+    transition: 0.3s ease;
+}
+
+.search-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.action-list {
+    margin-left: 2%;
+    margin-right: 2%;
 }
 </style>

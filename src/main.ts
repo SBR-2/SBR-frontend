@@ -10,7 +10,8 @@ import "vue-toastification/dist/index.css";
 import { createApp, provide, h } from 'vue'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { DefaultApolloClient } from '@vue/apollo-composable'
+import { DefaultApolloClient } from '@vue/apollo-composable';
+import '@fortawesome/fontawesome-free/js/all';
 
 // Inicialización de la aplicación
 const app = createApp({

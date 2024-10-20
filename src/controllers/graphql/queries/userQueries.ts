@@ -37,3 +37,14 @@ export const DELETE_USUARIO = gql`
     }
   }
 `;
+
+export const GET_ESTADOS_FISICOS = gql`
+  query estadoFisicos {
+    estadoFisicos(skip: null, take: null, where: {}, order: null) {
+      items {
+        estadoFisicoId
+        estadoFisico1
+      }
+    }
+  }
+`;

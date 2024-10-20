@@ -20,7 +20,16 @@ export const ADD_PRODUCTO = gql`
         marca
         origen
         estado
-        riesgoCategoriaId
+        envasePrimario
+        materialEmpaque
+        riesgoSubcategoriaId
+        estadoFisicoId
+        nacional
+        presentaciones
+        unIngrediente
+        productoEntidades {
+          productoId
+        }
       }
     }
   }
