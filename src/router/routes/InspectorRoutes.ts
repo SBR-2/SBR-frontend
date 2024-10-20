@@ -27,12 +27,12 @@ const InspectorRoutes: Array<RouteRecordRaw> = [
     component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart1.vue')
   },
   {
-    path: '/evaluacion-registro-sanitario-part2',
+    path: '/evaluacion-registro-sanitario-part2/:solicitudId',
     name: 'EvaluacionRegistroSanitarioPart2',
     component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart2.vue')
   },
   {	
-    path: '/evaluacion-registro-sanitario-part3',
+    path: '/evaluacion-registro-sanitario-part3/:solicitudId',
     name: 'EvaluacionRegistroSanitarioPart3',
     component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart3.vue')
   },

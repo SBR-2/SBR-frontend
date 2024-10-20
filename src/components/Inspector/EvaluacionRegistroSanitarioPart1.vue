@@ -125,28 +125,13 @@
       </div>
 
       <!-- Poder de Representación -->
-      <div class="mb-4 text-start section">
-        <h3 class="section-title"><strong>Poder de Representación</strong></h3>
-        <button
-          class="btn btn-primary btn-download"
-          @click="descargarDocumento('poderRepresentacion')"
-        >
-          <strong>Descargar</strong>
-        </button>
-      </div>
-
-      <!-- Certificado de Registro Mercantil -->
-      <div class="mb-4 text-start section">
-        <h3 class="section-title">
-          <strong>Certificado de Registro Mercantil</strong>
-        </h3>
-        <button
-          class="btn btn-primary btn-download"
-          @click="descargarDocumento('registroMercantil')"
-        >
-          <strong>Descargar</strong>
-        </button>
-      </div>
+      <div v-if="filteredDocuments('Poder de Representación', 'Certificado de Registro Mercantil').length === 0" class="alert alert-warning">
+      No hay documentos disponibles.
+    </div>
+    <div v-for="document in filteredDocuments('Poder de Representación', 'Certificado de Registro Mercantil')" :key="document.tipoDocumentoId" class="mb-3">
+      <label class="form-label"><strong class="label-bold">{{ document.tipoDocumento.tipoDocumento1 }}</strong></label>
+      <a :href="document.ruta" class="btn btn-primary btn-sm btn-download" target="_blank">Descargar</a>
+    </div>
 
       <!-- Información de Persona de Contacto -->
       <div class="mb-4 text-start section">
@@ -176,12 +161,15 @@
           </div>
         </div>
       </div>
-
+      
+      <div>
+    
+  </div>
       <!-- Botón de Siguiente -->
       <div class="mt-4 text-right">
         <router-link
           :to="{
-            path: `/evaluacion-registro-sanitariopart2/${solicitanteData.solicitudId}`,
+            path: `/evaluacion-registro-sanitario-part2/${solicitanteData.solicitudId}`,
           }"
           class="btn btn-primary btn-download"
         >
@@ -204,7 +192,7 @@ const solicitudId = ref(parseInt(window.location.pathname.split('/').pop(), 10) 
 
 
 const GET_SOLICITUD = gql`
-  query solicitud($solicitudId: Int!) {
+  query  GET_SOLICITUD($solicitudId: Int!) {
     solicituds(where: { solicitudId: { eq: $solicitudId } }) {
       items {
         acondicionadorDistinto
@@ -280,7 +268,7 @@ export default {
     HeaderInspector,
   },
   setup() {
-    const { result, loading, error } = useQuery(GET_SOLICITUD);
+    const { result, loading, error } = useQuery(GET_SOLICITUD, {solicitudId});
 
     // Computed properties para acceder a los datos
     const solicitanteData = computed(
@@ -303,12 +291,19 @@ export default {
         result.value?.solicituds.items[0]?.producto?.productoEntidads[3]
           ?.entidad || {}
     );
+    const documentData = computed(() => solicitanteData.value?.documentos || []);
 
+    const filteredDocuments = (...documentTypes) => {
+      return documentData.value.filter(document => documentTypes.includes(document.tipoDocumento.tipoDocumento1));
+    };
+
+  
     return {
       solicitanteData,
       titularData,
       representanteData,
       contactoData,
+      filteredDocuments,  
       loading,
       error,
     };

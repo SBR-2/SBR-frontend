@@ -7,11 +7,15 @@
       <!-- Header -->
       <HeaderInspector @toggle-sidebar="toggleSidebar" />
 
-      <h2 class="mb-4 text-start title"><strong>Evaluación de Registro Sanitario</strong></h2>
+      <h2 class="mb-4 text-start title">
+        <strong>Evaluación de Registro Sanitario</strong>
+      </h2>
 
       <!-- Información del Almacenador -->
       <div class="mb-4 text-start section">
-        <h3 class="section-title"><strong>Información del Almacenador</strong></h3>
+        <h3 class="section-title">
+          <strong>Información del Almacenador</strong>
+        </h3>
         <div class="flex-container">
           <div class="flex-item">
             <h4 class="sub-title"><strong>Nombre</strong></h4>
@@ -27,18 +31,51 @@
         <div class="flex-container">
           <div class="flex-item">
             <h4 class="sub-title"><strong>Permiso Sanitario</strong></h4>
-            <button class="btn btn-primary btn-download" @click="descargarDocumento('permisoSanitario')">Descargar</button>
+
+            <div
+              v-if="
+                filteredDocuments('Copia del Permiso Sanitario').length === 0
+              "
+              class="alert alert-warning"
+            >
+              No hay documentos de Permiso Sanitario disponibles.
+            </div>
+            <div
+              v-for="document in filteredDocuments(
+                'Copia del Permiso Sanitario'
+              )"
+              :key="document.tipoDocumentoId"
+              class="mb-3"
+            >
+              <label class="form-label"
+                ><strong class="label-bold">{{
+                  document.tipoDocumento.tipoDocumento1
+                }}</strong></label
+              >
+              <a
+                :href="document.ruta"
+                class="btn btn-primary btn-sm btn-download"
+                target="_blank"
+                >Descargar</a
+              >
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Información del Fabricante -->
       <div class="mb-4 text-start section">
-        <h3 class="section-title"><strong>Información del Fabricante</strong></h3>
+        <h3 class="section-title">
+          <strong>Información del Fabricante</strong>
+        </h3>
         <div class="flex-container">
           <div class="flex-item">
-            <h4 class="sub-title"><strong>¿Es el titular el fabricante del producto?</strong></h4>
-            <p class="label-value">{{ titularData.esFabricante ? 'Sí' : 'No' }}</p>
+            <h4 class="sub-title">
+              <strong>¿Es el titular el fabricante del producto?</strong>
+            </h4>
+            <p class="label-value">
+              {{ titularData.esFabricante ? "Sí" : "No" }}
+            </p>
           </div>
         </div>
         <div class="flex-container">
@@ -59,37 +96,73 @@
         </div>
 
         <!-- Certificados -->
-        <div class="flex-container" v-for="certificado in certificadosFabricante" :key="certificado.nombre">
-          <div class="flex-item">
-            <h4 class="sub-title"><strong>{{ certificado.nombre }}</strong></h4>
-            <button class="btn btn-primary btn-download" @click="descargarDocumento(certificado.tipo)">Descargar</button>
-          </div>
-        </div>
-        
+
         <div class="flex-container">
           <div class="flex-item">
-            <h4 class="sub-title"><strong>¿El producto es fabricado en el país y es exportado?</strong></h4>
-            <p class="label-value">{{ solicitanteData.esExportado ? 'Sí' : 'No' }}</p>
+            <h4 class="sub-title">
+              <strong
+                >¿El producto es fabricado en el país y es exportado?</strong
+              >
+            </h4>
+            <p class="label-value">
+              {{ solicitanteData.esExportado ? "Sí" : "No" }}
+            </p>
           </div>
         </div>
 
         <!-- Certificado de Exportación -->
         <div class="flex-container">
           <div class="flex-item">
-            <h4 class="sub-title"><strong>Certificado de Exportación</strong></h4>
-            <button class="btn btn-primary btn-download" @click="descargarDocumento('certificadoExportacion')">Descargar</button>
+            <h4 class="sub-title">
+              <strong>Certificado de Exportación</strong>
+            </h4>
+            <div
+              v-if="
+                filteredDocuments('Certificado de exportación').length === 0
+              "
+              class="alert alert-warning"
+            >
+              No hay documentos de Certificado de exportación.
+            </div>
+            <div
+              v-for="document in filteredDocuments(
+                'Certificado de exportación'
+              )"
+              :key="document.tipoDocumentoId"
+              class="mb-3"
+            >
+              <label class="form-label"
+                ><strong class="label-bold">{{
+                  document.tipoDocumento.tipoDocumento1
+                }}</strong></label
+              >
+              <a
+                :href="document.ruta"
+                class="btn btn-primary btn-sm btn-download"
+                target="_blank"
+                >Descargar</a
+              >
+            </div>
           </div>
         </div>
-
       </div>
 
       <!-- Información del Acondicionador -->
       <div class="mb-4 text-start section">
-        <h3 class="section-title"><strong>Información del Acondicionador</strong></h3>
+        <h3 class="section-title">
+          <strong>Información del Acondicionador</strong>
+        </h3>
         <div class="flex-container">
           <div class="flex-item">
-            <h4 class="sub-title"><strong>¿La empresa acondicionadora es distinta a la empresa que fabrica el producto?</strong></h4>
-            <p class="label-value">{{ solicitanteData.acondicionadorDistinto ? 'Sí' : 'No' }}</p>
+            <h4 class="sub-title">
+              <strong
+                >¿La empresa acondicionadora es distinta a la empresa que
+                fabrica el producto?</strong
+              >
+            </h4>
+            <p class="label-value">
+              {{ solicitanteData.acondicionadorDistinto ? "Sí" : "No" }}
+            </p>
           </div>
         </div>
         <div class="flex-container">
@@ -112,18 +185,46 @@
         <!-- Contrato de Acondicionamiento -->
         <div class="flex-container">
           <div class="flex-item">
-            <h4 class="sub-title"><strong>Contrato de Acondicionamiento</strong></h4>
-            <button class="btn btn-primary btn-download" @click="descargarDocumento('contratoAcondicionamiento')">Descargar</button>
+            <h4 class="sub-title">
+              <strong>Contrato de Acondicionamiento</strong>
+            </h4>
+            <div
+              v-if="
+                filteredDocuments('Contrato de Acondicionamiento').length === 0
+              "
+              class="alert alert-warning"
+            >
+              No hay documentos de Contrato de Acondicionamiento.
+            </div>
+            <div
+              v-for="document in filteredDocuments(
+                'Contrato de Acondicionamiento'
+              )"
+              :key="document.tipoDocumentoId"
+              class="mb-3"
+            >
+              <label class="form-label"
+                ><strong class="label-bold">{{
+                  document.tipoDocumento.tipoDocumento1
+                }}</strong></label
+              >
+              <a
+                :href="document.ruta"
+                class="btn btn-primary btn-sm btn-download"
+                target="_blank"
+                >Descargar</a
+              >
+            </div>
           </div>
         </div>
-
       </div>
 
       <!-- Botón de Siguiente -->
       <div class="mt-4 text-end">
-        <button class="btn btn-primary btn-download" @click="irASiguiente"><strong>Siguiente</strong></button>
+        <button class="btn btn-primary btn-download" @click="irASiguiente">
+          <strong>Siguiente</strong>
+        </button>
       </div>
-
     </div>
   </div>
 </template>
@@ -136,11 +237,13 @@ import SidebarInspector from "./SideBarInspector.vue";
 import gql from "graphql-tag";
 import { useQuery } from "@vue/apollo-composable";
 
-
+const solicitudId = ref(
+  parseInt(window.location.pathname.split("/").pop(), 10) || 1
+); // ID de la solicitud seleccionada
 
 const GET_SOLICITUD = gql`
-  query solicitud {
-    solicituds(where: { solicitudId: { eq: 4 } }) {
+  query GET_SOLICITUD($solicitudId: Int!) {
+    solicituds(where: { solicitudId: { eq: $solicitudId } }) {
       items {
         acondicionadorDistinto
         esExportado
@@ -215,7 +318,7 @@ export default {
     HeaderInspector,
   },
   setup() {
-    const { result, loading, error } = useQuery(GET_SOLICITUD);
+    const { result, loading, error } = useQuery(GET_SOLICITUD, { solicitudId });
 
     // Computed properties para acceder a los datos
     const solicitanteData = computed(
@@ -237,7 +340,8 @@ export default {
       () =>
         result.value?.solicituds.items[0]?.producto?.productoEntidads[3]
           ?.entidad || {}
-    ); const fabricanteData = computed(
+    );
+    const fabricanteData = computed(
       () =>
         result.value?.solicituds.items[0]?.producto?.productoEntidads[6]
           ?.entidad || {}
@@ -247,12 +351,22 @@ export default {
         result.value?.solicituds.items[0]?.producto?.productoEntidads[5]
           ?.entidad || {}
     );
+    const documentData = computed(
+      () => solicitanteData.value?.documentos || []
+    );
+
+    const filteredDocuments = (...documentTypes) => {
+      return documentData.value.filter((document) =>
+        documentTypes.includes(document.tipoDocumento.tipoDocumento1)
+      );
+    };
 
     return {
       solicitanteData,
       titularData,
       representanteData,
       contactoData,
+      filteredDocuments,
       loading,
       error,
     };

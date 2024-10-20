@@ -103,6 +103,7 @@
   </div>
 </template>
 <script>
+
 import { defineComponent, ref, computed } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
