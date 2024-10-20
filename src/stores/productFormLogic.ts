@@ -626,7 +626,16 @@ export const useProductFormStore = defineStore("productForm", () => {
         },
       });
 
-      return data.usuarios.items[0].productos;
+      const productosFiltrados = data.usuarios.items[0].productos.map((producto:any) => {
+        return {
+          ...producto,
+          solicituds: producto.solicituds.filter((solicitud: any) => solicitud.estado !== "rechazada")
+        };
+      });
+      
+      console.log("Productos del usuario:", productosFiltrados);
+      return productosFiltrados;
+
     } catch (err) {
       console.error("GraphQL Error:", err);
     }

@@ -2,6 +2,9 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import authRoutes from "./routes/authRoutes";
 import adminRoutes from './routes/AdminRoutes';
 import userRoutes from './routes/userRoutes';
+import userRoutes from "./routes/userRoutes";
+import adminRoutes from "./routes/AdminRoutes";
+import EvaluadorRoutes from "./routes/EvaluadorRoutes";
 import InspectorRoutes from "./routes/InspectorRoutes";
 import { useAuthStore } from "../stores/authStore";
 import { useToast } from "vue-toastification";
@@ -12,13 +15,34 @@ const routes: Array<RouteRecordRaw> = [
   ...aplicantRoutes,
   ...authRoutes,
   ...userRoutes,
+  ...EvaluadorRoutes,
   ...InspectorRoutes,
   ...adminRoutes,
   {
     path: "/", // Ruta por defecto
     name: "EjemploDeRuta",
-    component: () => import("../views/VistaDeEjemplo.vue"),
+    component: () => import("../components/Auth/LogIn.vue"),
     meta: { requiresAuth: true },
+  },
+  {
+    path: "/",
+    name: "PanelPrincipal",
+    component: () => import("../components/Admin/panel-principal.vue"),
+  },
+  {
+    path: "/",
+    name: "dashboard",
+    component: () => import("../components/Admin/dashboard.vue"),
+  },
+  {
+    path: "/",
+    name: "listaUsuarios",
+    component: () => import("../components/Admin/listausuario.vue"),
+  },
+  {
+    path: "/form",
+    name: "registro",
+    component: () => import("../views/ProductForm.vue"),
   },
 ];
 

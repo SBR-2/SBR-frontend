@@ -90,6 +90,45 @@
                   <div class="text-start">
                     <!-- <button class="btn btn-outline-secondary"><i class="bi bi-download"></i> Descargar</button> -->
                   </div>
+                  <div class="mt-3">
+                    <!-- Riesgo Total -->
+                    <div>
+                      <strong>Riesgo total: </strong>
+                      <!-- Punto de color según el riesgo total -->
+                      <span
+                        class="riesgo-indicator"
+                        :class="getRiesgoTotalClass(producto.solicituds[0].riesgoTotal)"
+                      >
+                        &#9679;
+                      </span>
+                      {{ getRiesgoTotalLabel(producto.solicituds[0].riesgoTotal) }}
+                    </div>
+                    
+                    <!-- Riesgo Subcategoria -->
+                    <div class="mt-2">
+                      <strong>Riesgo del producto: </strong>
+                      <!-- Punto de color según el riesgo de la subcategoría -->
+                      <span
+                        class="riesgo-indicator"
+                        :class="getRiesgoSubcategoriaClass(producto.riesgoSubcategoria.riesgo.riesgo1)"
+                      >
+                        &#9679;
+                      </span>
+                      {{ getRiesgoSubcategoriaLabel(producto.riesgoSubcategoria.riesgo.riesgo1) }}
+                    </div>
+
+                    <!-- Mostrar estado solo si tiene solicitudes -->
+                    <div v-if="producto.solicituds && producto.solicituds.length > 0" class="mt-2">
+                      <strong>Estado de solicitud: </strong>
+                      <span 
+                        class="estado-indicator"
+                        :class="getEstadoClass(producto.solicituds[0].estado)"
+                      >
+                        &#9679;
+                      </span>
+                      {{ producto.solicituds[0].estado.toUpperCase() }}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -115,16 +154,22 @@ export default {
     const logic = useProductFormStore();
     const productos = await logic.getUserProducts();
 
+    // Filtrar productos que tienen al menos una solicitud
+    const productosConSolicitudes = productos.filter(
+      (producto) => producto.solicituds && producto.solicituds.length > 0
+    );
 
     // Dynamic counters for the indicators
     const approvedCount = productos.reduce(
       (count, product) => count + product.solicituds.filter(s => s.estado === 'aceptada').length,
       0
     );
+
     // const expiredCount = productos.reduce(
     //   (count, product) => count + product.solicituds.filter(s => s.estado === 'vencido').length,
     //   0
     // );
+
     const rejectedCount = productos.reduce(
       (count, product) => count + product.solicituds.filter(s => s.estado === 'rechazada').length,
       0
@@ -134,7 +179,48 @@ export default {
       0
     );
 
-    return { productos, approvedCount, rejectedCount, pendingCount };
+    // Function to return the class based on the total risk
+    const getRiesgoTotalClass = (riesgoTotal) => {
+      if (riesgoTotal === 0) return 'text-secondary'; // Gray for "Por Evaluar"
+      if (riesgoTotal > 0 && riesgoTotal <= 3.6) return 'text-success'; // Green for low risk
+      if (riesgoTotal > 3.6 && riesgoTotal <= 6.3) return 'text-warning'; // Yellow for medium risk
+      if (riesgoTotal > 6.3) return 'text-danger'; // Red for high risk
+      return ''; // Default case (no color)
+    };
+
+    // Function to return the label based on the total risk
+    const getRiesgoTotalLabel = (riesgoTotal) => {
+      if (riesgoTotal === 0) return 'POR EVALUAR';
+      if (riesgoTotal > 0 && riesgoTotal <= 3.6) return 'BAJO';
+      if (riesgoTotal > 3.6 && riesgoTotal <= 6.3) return 'MEDIO';
+      if (riesgoTotal > 6.3) return 'ALTO';
+      return 'DESCONOCIDO';
+    };
+
+    // Function to return the class based on the subcategory risk
+    const getRiesgoSubcategoriaClass = (riesgoSubcategoria) => {
+      if (riesgoSubcategoria === 'BAJO') return 'text-success'; // Green
+      if (riesgoSubcategoria === 'MEDIO') return 'text-warning'; // Yellow
+      if (riesgoSubcategoria === 'ALTO') return 'text-danger'; // Red
+      return 'text-secondary'; // Default for "Por Evaluar"
+    };
+
+    // Function to return the label based on the subcategory risk
+    const getRiesgoSubcategoriaLabel = (riesgoSubcategoria) => {
+      if (riesgoSubcategoria === 'BAJO') return 'BAJO';
+      if (riesgoSubcategoria === 'MEDIO') return 'MEDIO';
+      if (riesgoSubcategoria === 'ALTO') return 'ALTO';
+      return 'POR EVALUAR';
+    };
+
+    // Function to return the class based on the status
+    const getEstadoClass = (estado) => {
+      if (estado === 'aceptada') return 'text-success'; // Green
+      if (estado === 'en proceso') return 'text-warning'; // Yellow
+      return 'text-danger'; // Default to red for other statuses
+    };
+
+    return { productosConSolicitudes, approvedCount, rejectedCount, pendingCount, getEstadoClass, getRiesgoTotalClass, getRiesgoTotalLabel, getRiesgoSubcategoriaClass, getRiesgoSubcategoriaLabel };
   },
 };
 </script>
@@ -179,5 +265,31 @@ export default {
   white-space: nowrap; /* Evita que el texto pase a otra línea */
   overflow: hidden;    /* Oculta el desbordamiento del texto */
   text-overflow: ellipsis; /* Añade puntos suspensivos (...) si el texto es muy largo */
+
+.card-small h5 {
+  font-size: 1.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.estado-indicator {
+  font-size: 1.2rem;
+  margin-right: 5px;
+}
+.riesgo-indicator {
+  font-size: 1.2rem;
+  margin-right: 5px;
+}
+.text-success {
+  color: green;
+}
+.text-warning {
+  color: yellow;
+}
+.text-danger {
+  color: red;
+}
+.text-secondary {
+  color: gray;
 }
 </style>

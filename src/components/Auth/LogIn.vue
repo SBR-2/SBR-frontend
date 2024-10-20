@@ -28,17 +28,17 @@
                         Iniciar Sesión
                     </div>
                 </button>
-                <span style="width: 100%;display: flex;justify-content: center;align-items: center;">
+                <!-- <span style="width: 100%;display: flex;justify-content: center;align-items: center;">
                     <router-link :to="'/reset-password'" class="link" style="text-align: right; width: auto; display: block; margin-top: 7.5px;">
                         ¿Olvidaste tu contraseña?
                     </router-link>
-                </span>
-                <span style="width: 100%;display: flex;justify-content: center;align-items: flex-end;gap: 10px;">
+                </span> -->
+                <!-- <span style="width: 100%;display: flex;justify-content: center;align-items: flex-end;gap: 10px;">
                     ¿No tienes cuenta?
                     <router-link :to="'/request-account'" class="link" style="text-align: right; width: auto; display: block; margin-top: 7.5px;">
                         Solicita una
                     </router-link>
-                </span>
+                </span> -->
             </form>
         </div>
     </div>
@@ -113,15 +113,14 @@ export default defineComponent({
 
                         if (userRole === 'Admin') {
                             router.push('/admin/dashboard');
-                        }
-                        else if (userRole === 'Applicant') {
-                            router.push('/solicitante/lista-productos');
-                        }
-                        else if (userRole === 'Inspector') {
+                        } else if (userRole === 'Applicant') {
+                            router.push('/user/dashboard');
+                        }else if (userRole === 'Inspector') {
                             router.push('/inspectordashboard');
-                        }
-                        else {
-                            router.push('/admin');
+                        } else if (userRole === 'Evaluator') {
+                            router.push('/lista-productos-evaluador');
+                        } else {
+                            toast.error('Hubo un problema al determinar el rol de usuario.');
                         }
                     }
                     else {
