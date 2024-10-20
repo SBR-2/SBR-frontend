@@ -110,8 +110,14 @@ export default defineComponent({
 
                         if (userRole === 'Admin') {
                             router.push('/admin/dashboard');
+                        } else if (userRole === 'Applicant') {
+                            router.push('/user/dashboard');
+                        }else if (userRole === 'Inspector') {
+                            router.push('/inspectordashboard');
+                        } else if (userRole === 'Evaluator') {
+                            router.push('/lista-productos-evaluador');
                         } else {
-                            router.push('/admin');
+                            toast.error('Hubo un problema al determinar el rol de usuario.');
                         }
                     }
                     else {

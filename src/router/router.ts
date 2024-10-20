@@ -1,43 +1,45 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import adminRoutes from './routes/AdminRoutes';
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
+import adminRoutes from "./routes/AdminRoutes";
 import EvaluadorRoutes from "./routes/EvaluadorRoutes";
-import { useAuthStore } from '../stores/authStore';
-import { useToast } from 'vue-toastification';
+import InspectorRoutes from "./routes/InspectorRoutes";
+import { useAuthStore } from "../stores/authStore";
+import { useToast } from "vue-toastification";
 
 // Definición de las rutas
 const routes: Array<RouteRecordRaw> = [
-    ...authRoutes,
-    ...userRoutes,
-    ...EvaluadorRoutes,
-    ...adminRoutes,
-    {
-        path: '/', // Ruta por defecto
-        name: 'EjemploDeRuta',
-        component: () => import('../views/VistaDeEjemplo.vue'),
-        meta: { requiresAuth: true },
-    },
-    {
-        path: '/',
-        name: 'PanelPrincipal',
-        component: () => import('../components/Admin/panel-principal.vue')
-    },
-    {
-        path: '/',
-        name: 'dashboard',
-        component: () => import('../components/Admin/dashboard.vue')
-    },
-    {
-        path: '/',
-        name: 'listaUsuarios',
-        component: () => import('../components/Admin/listausuario.vue')
-    },
-    {
-        path: '/form',
-        name: 'registro',
-        component: () => import('../views/ProductForm.vue')
-    },
+  ...authRoutes,
+  ...userRoutes,
+  ...EvaluadorRoutes,
+  ...InspectorRoutes,
+  ...adminRoutes,
+  {
+    path: "/", // Ruta por defecto
+    name: "EjemploDeRuta",
+    component: () => import("../components/Auth/LogIn.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/",
+    name: "PanelPrincipal",
+    component: () => import("../components/Admin/panel-principal.vue"),
+  },
+  {
+    path: "/",
+    name: "dashboard",
+    component: () => import("../components/Admin/dashboard.vue"),
+  },
+  {
+    path: "/",
+    name: "listaUsuarios",
+    component: () => import("../components/Admin/listausuario.vue"),
+  },
+  {
+    path: "/form",
+    name: "registro",
+    component: () => import("../views/ProductForm.vue"),
+  },
 ];
 
 // Inicialización del router
