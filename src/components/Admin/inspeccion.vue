@@ -1,25 +1,20 @@
 <template>
   <div class="container">
-    <div>
-      <div class="user-list-container">
-        <h4 class="titulo d-flex">Asignación Inspección</h4>
-        <!-- Barra de búsqueda -->
-        <input
-          type="text"
-          v-model="searchTerm"
-          placeholder="Buscar"
-          class="search-bar"
-        />
-      </div>
+    <div class="user-list-container">
+      <h4 class="titulo d-flex">Asignación Inspección</h4>
+      <!-- Barra de búsqueda -->
+      <input
+        type="text"
+        v-model="searchTerm"
+        placeholder="Buscar"
+        class="search-bar"
+      />
     </div>
-    <!-- Manejo de estados de carga y error -->
-    <div v-if="loading">
+
+    <!-- Manejo de estados de carga y error para fichas e inspectores -->
+    <div v-if="loadingFichas || loadingInspectores">
       <p>Cargando datos...</p>
     </div>
-    <div v-else-if="error">
-      <p>Error al cargar los datos: {{ error.message }}</p>
-    </div>
-    <!-- Tabla para visualizar las solicitudes -->
     <div v-else>
       <table>
         <thead>
@@ -30,11 +25,15 @@
             <th>Dirección</th>
             <th>Producto</th>
             <th>Fecha de Solicitud</th>
-            <th>Acciones</th>
+            <th>Acción</th>
           </tr>
         </thead>
         <tbody>
+          <tr v-if="filteredSolicitudes.length === 0">
+            <td colspan="7" class="text-center">No hay fichas sin asignar</td>
+          </tr>
           <tr
+            v-else
             v-for="solicitud in filteredSolicitudes"
             :key="solicitud.fichaId"
           >
@@ -45,12 +44,25 @@
             <td>{{ solicitud.productoNombre }}</td>
             <td>{{ formatDate(solicitud.fechaSolicitud) }}</td>
             <td class="acciones-cell">
-              <button
-                class="btn btn-edit"
-                @click="openAsignarInspectorModal(solicitud)"
+              <select
+                v-model="solicitud.selectedInspectorId"
+                @change="asignarInspector(solicitud)"
+                :disabled="solicitud.isAssigning"
               >
-                Asignar
-              </button>
+                <option disabled value="">
+                  {{ solicitud.inspectorId ? 'Cambiar Inspector' : 'Asignar Inspector' }}
+                </option>
+                <option
+                  v-for="inspector in inspectores.filter(i => i.estado === 'true')"
+                  :key="inspector.usuarioId"
+                  :value="inspector.usuarioId"
+                >
+                  {{ inspector.nombre }}
+                </option>
+              </select>
+              <span v-if="solicitud.isAssigning" class="loading-text">
+                Asignando...
+              </span>
             </td>
           </tr>
         </tbody>
@@ -58,88 +70,16 @@
     </div>
     <!-- Componente PanelPrincipal -->
     <PanelPrincipal />
-
-    <!-- Modal para asignar inspector -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal">
-        <h3>Asignar Inspector</h3>
-        <select v-model="selectedInspectorId">
-          <option disabled value="">Seleccione un inspector</option>
-          <option
-            v-for="inspector in inspectores"
-            :key="inspector.inspectorId"
-            :value="inspector.inspectorId"
-          >
-            {{ inspector.inspector.correo }} - {{ inspector.inspector.estado }}
-          </option>
-        </select>
-        <div class="modal-actions">
-          <button @click="asignarInspector">Asignar</button>
-          <button @click="closeModal">Cancelar</button>
-        </div>
-        <div v-if="mutationError" class="error">
-          Error al asignar inspector: {{ mutationError.message }}
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import PanelPrincipal from './panel-principal.vue';
 import { ref, watch, computed, defineComponent } from 'vue';
-import { gql } from 'graphql-tag';
 import { useQuery, useMutation } from '@vue/apollo-composable';
-
-// Definir la consulta GraphQL para obtener fichas e inspectores
-const GET_FICHAS_INSPECTORES = gql`
-  query inspector {
-    fichas(skip: null, take: null, where: { }, order: null) {
-      items {
-        fichaId
-        solicitud {
-          fechaCreacion
-          producto {
-            nombre
-            usuario {
-              nombre
-              correo
-              entidad {
-                nombre
-                direccion
-              }
-            }
-          }
-        }
-        inspectorId
-        inspector {
-          correo
-          estado
-          rolId
-          usuarioId
-          nombre
-        }
-      }
-    }
-  }
-`;
-
-// Definir la mutación GraphQL para actualizar una ficha
-const UPDATE_FICHA = gql`
-  mutation updateFicha($input: UpdateFichaInput!) {
-    updateFicha(input: $input) {
-      ficha {
-        estado
-        fichaId
-        inspectorId
-        inspector {
-          estado
-          nombre
-        }
-      }
-    }
-  }
-`;
+import { useToast } from 'vue-toastification';
+import { GET_FICHAS_USUARIO, GET_ALL_INSPECTORES } from '../../controllers/graphql/queries/adminQueries';
+import { UPDATE_FICHA } from '../../controllers/graphql/mutations/admin/adminMutations';
 
 export default defineComponent({
   components: {
@@ -147,19 +87,65 @@ export default defineComponent({
   },
   setup() {
     const searchTerm = ref('');
-    const showModal = ref(false);
-    const selectedSolicitud = ref(null);
-    const selectedInspectorId = ref('');
+    const toast = useToast();
 
-    // Consulta para obtener fichas e inspectores
-    const { result, loading, error, refetch } = useQuery(GET_FICHAS_INSPECTORES);
+    // Consulta para obtener fichas
+    const {
+      result: resultFichas,
+      loading: loadingFichas,
+      error: errorFichas,
+      refetch: refetchFichas,
+    } = useQuery(GET_FICHAS_USUARIO);
+
+    // Consulta para obtener todos los inspectores
+    const {
+      result: resultInspectores,
+      loading: loadingInspectores,
+      error: errorInspectores,
+    } = useQuery(GET_ALL_INSPECTORES);
+
     const solicitudes = ref([]);
     const inspectores = ref([]);
 
+    // Definir la mutación para actualizar una ficha
+    const { mutate: updateFicha } = useMutation(UPDATE_FICHA, {
+      onCompleted: () => {
+        // Refrescar la consulta después de la mutación
+        refetchFichas();
+        toast.success('Inspector asignado correctamente.');
+      },
+      onError: (mutationError) => {
+        // Error se maneja en la función asignarInspector
+        console.error(mutationError);
+      },
+    });
+
+    // Manejar errores de fichas
     watch(
-      () => result.value,
+      () => errorFichas.value,
+      (newError) => {
+        if (newError) {
+          toast.error(`Error al cargar fichas: ${newError.message}`);
+        }
+      }
+    );
+
+    // Manejar errores de inspectores
+    watch(
+      () => errorInspectores.value,
+      (newError) => {
+        if (newError) {
+          toast.error(`Error al cargar inspectores: ${newError.message}`);
+        }
+      }
+    );
+
+    // Procesar los resultados de las consultas de fichas
+    watch(
+      () => resultFichas.value,
       (newValue) => {
         if (newValue && newValue.fichas && newValue.fichas.items) {
+          console.log('Fichas recibidas:', newValue.fichas.items); // Log para depuración
           solicitudes.value = newValue.fichas.items
             .map((ficha) => {
               const solicitud = ficha.solicitud;
@@ -174,62 +160,54 @@ export default defineComponent({
                   direccion: usuario.entidad?.direccion || 'Sin dirección',
                   fechaSolicitud: solicitud.fechaCreacion,
                   productoNombre: producto?.nombre || 'Sin producto',
-                  inspectorId: ficha.inspectorId,
-                  inspector: ficha.inspector,
+                  inspectorId: ficha.inspectorId || null,
+                  inspector: ficha.inspector || null,
+                  selectedInspectorId: ficha.inspectorId || '',
+                  isAssigning: false, // Inicializar el estado de asignación
                 };
               } else {
                 return null;
               }
             })
             .filter((item) => item !== null);
-
-          // Extraer inspectores únicos
-          const uniqueInspectors = {};
-          solicitudes.value.forEach((solicitud) => {
-            if (solicitud.inspector) {
-              uniqueInspectors[solicitud.inspectorId] = solicitud.inspector;
-            }
-          });
-          inspectores.value = Object.keys(uniqueInspectors).map((id) => ({
-            inspectorId: parseInt(id),
-            inspector: uniqueInspectors[id],
-          }));
+          console.log('Solicitudes procesadas:', solicitudes.value); // Log para depuración
         }
       },
       { immediate: true }
     );
 
-    // Definir la mutación para actualizar una ficha
-    const {
-      mutate: updateFicha,
-      onDone: onUpdateDone,
-      onError: onUpdateError,
-      loading: mutationLoading,
-      error: mutationError,
-    } = useMutation(UPDATE_FICHA, {
-      onCompleted: () => {
-        // Refrescar la consulta después de la mutación
-        refetch();
-        closeModal();
+    // Procesar los resultados de las consultas de inspectores
+    watch(
+      () => resultInspectores.value,
+      (newValue) => {
+        if (newValue && newValue.usuarios && newValue.usuarios.items) {
+          inspectores.value = newValue.usuarios.items;
+          console.log('Inspectores recibidos:', inspectores.value); // Log para depuración
+        }
       },
-    });
+      { immediate: true }
+    );
 
     // Computed para filtrar las solicitudes
     const filteredSolicitudes = computed(() => {
+      return solicitudes.value
+        .filter(solicitud => !solicitud.inspectorId) // Exclude assigned requests
+        .filter(solicitud => solicitudMatchesSearch(solicitud)); // Apply the search filter
+    });
+
+    const solicitudMatchesSearch = (solicitud) => {
       if (!searchTerm.value) {
-        return solicitudes.value;
+        return true;
       }
       const term = searchTerm.value.toLowerCase();
-      return solicitudes.value.filter((solicitud) => {
-        return (
-          solicitud.nombre.toLowerCase().includes(term) ||
-          solicitud.correo.toLowerCase().includes(term) ||
-          solicitud.entidadNombre.toLowerCase().includes(term) ||
-          solicitud.direccion.toLowerCase().includes(term) ||
-          solicitud.productoNombre.toLowerCase().includes(term)
-        );
-      });
-    });
+      return (
+        solicitud.nombre.toLowerCase().includes(term) ||
+        solicitud.correo.toLowerCase().includes(term) ||
+        solicitud.entidadNombre.toLowerCase().includes(term) ||
+        solicitud.direccion.toLowerCase().includes(term) ||
+        solicitud.productoNombre.toLowerCase().includes(term)
+      );
+    };
 
     // Función para formatear la fecha
     const formatDate = (dateString) => {
@@ -237,61 +215,41 @@ export default defineComponent({
       return new Date(dateString).toLocaleDateString('es-ES', options);
     };
 
-    // Función para abrir el modal de asignación de inspector
-    const openAsignarInspectorModal = (solicitud) => {
-      selectedSolicitud.value = solicitud;
-      selectedInspectorId.value = solicitud.inspectorId || '';
-      showModal.value = true;
-    };
-
-    // Función para cerrar el modal
-    const closeModal = () => {
-      showModal.value = false;
-      selectedSolicitud.value = null;
-      selectedInspectorId.value = '';
-    };
-
     // Función para asignar el inspector seleccionado a la ficha
-    const asignarInspector = () => {
-      if (!selectedInspectorId.value) {
-        alert('Por favor, seleccione un inspector.');
-        return;
-      }
-      if (!selectedSolicitud.value) {
-        alert('Solicitud no válida.');
+    const asignarInspector = async (solicitud) => {
+      if (!solicitud.selectedInspectorId) {
+        toast.error('Por favor, seleccione un inspector.');
         return;
       }
 
-      const input = {
-        inspectorId: parseInt(selectedInspectorId.value),
-        aprobadorId: null,
-        calificacion: null,
-        evaluadorId: null,
-        fechaAprobacion: null,
-        fechaRevision: null,
-        fichaId: selectedSolicitud.value.fichaId,
-        matizRiesgo: null,
-        revisorId: null,
+      solicitud.isAssigning = true;
+
+      const updateFichaInput = {
+        fichaId: solicitud.fichaId,
+        inspectorId: parseInt(solicitud.selectedInspectorId),
       };
 
-      updateFicha({ input });
+      try {
+        await updateFicha({
+          input: updateFichaInput,
+        });
+      } catch (err) {
+        toast.error(`Error al asignar inspector: ${err.message}`);
+        console.error('Mutation error:', err);
+      } finally {
+        solicitud.isAssigning = false;
+      }
     };
 
     return {
       searchTerm,
       solicitudes,
       filteredSolicitudes,
-      loading,
-      error,
+      loadingFichas,
+      loadingInspectores,
       formatDate,
-      openAsignarInspectorModal,
-      showModal,
       inspectores,
-      selectedInspectorId,
       asignarInspector,
-      closeModal,
-      mutationError,
-      mutationLoading,
     };
   },
 });
@@ -386,6 +344,19 @@ p {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.acciones-cell select {
+  background-color: #0069d9; /* Azul */
+  color: white; /* Color del texto */
+  border: none;
+  padding: 5px;
+  border-radius: 4px;
+  appearance: none; /* Quitar el estilo por defecto para un mejor aspecto */
+}
+
+.acciones-cell select:focus {
+  outline: none;
+  box-shadow: 0 0 5px #0056b3; /* Añadir un efecto al seleccionar */
 }
 
 @media (max-width: 600px) {

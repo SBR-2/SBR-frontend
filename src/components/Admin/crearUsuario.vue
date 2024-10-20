@@ -15,6 +15,7 @@
                 <div class="col-md-6 mb-3">
                   <label for="rol" class="form-label d-flex">Rol*</label>
                   <select class="form-select" id="rol" v-model="userData.rolId" required>
+                    <option value="1">Administrador</option>
                     <option value="3">Inspector</option>
                     <option value="4">Evaluador</option>
                   </select>
@@ -92,7 +93,7 @@
   crearUsuario({input:{
       nombre: userData.value.nombre,
       correo: userData.value.correo,
-      rolId: '3', // Aseguramos que sea un númeroq
+      rolId: userData.value.rolId.toString(), 
       entidadId: 1, 
       password: '1234',
   }})
