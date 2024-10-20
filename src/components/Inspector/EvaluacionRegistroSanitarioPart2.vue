@@ -69,7 +69,7 @@
         <div class="flex-container">
           <div class="flex-item">
             <h4 class="sub-title"><strong>¿El producto es fabricado en el país y es exportado?</strong></h4>
-            <p class="label-value">{{ titularData.esExportado ? 'Sí' : 'No' }}</p>
+            <p class="label-value">{{ solicitanteData.esExportado ? 'Sí' : 'No' }}</p>
           </div>
         </div>
 
@@ -89,23 +89,23 @@
         <div class="flex-container">
           <div class="flex-item">
             <h4 class="sub-title"><strong>¿La empresa acondicionadora es distinta a la empresa que fabrica el producto?</strong></h4>
-            <p class="label-value">{{ acondicionadorData.esDistinta ? 'Sí' : 'No' }}</p>
+            <p class="label-value">{{ solicitanteData.acondicionadorDistinto ? 'Sí' : 'No' }}</p>
           </div>
         </div>
         <div class="flex-container">
           <div class="flex-item">
             <h4 class="sub-title"><strong>Nombre</strong></h4>
-            <p class="label-value">{{ acondicionadorData.nombre }}</p>
+            <p class="label-value">x</p>
           </div>
         </div>
         <div class="flex-container">
           <div class="flex-item">
             <h4 class="sub-title"><strong>País de origen</strong></h4>
-            <p class="label-value">{{ acondicionadorData.paisOrigen }}</p>
+            <p class="label-value">x</p>
           </div>
           <div class="flex-item">
             <h4 class="sub-title"><strong>Dirección</strong></h4>
-            <p class="label-value">{{ acondicionadorData.direccion }}</p>
+            <p class="label-value">x</p>
           </div>
         </div>
 
@@ -129,69 +129,135 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
-import { useRouter } from 'vue-router'; // Importar useRouter
-import HeaderInspector from './HeaderInspector.vue';
-import SidebarInspector from './SideBarInspector.vue';
+import { defineComponent, ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import HeaderInspector from "./HeaderInspector.vue";
+import SidebarInspector from "./SideBarInspector.vue";
+import gql from "graphql-tag";
+import { useQuery } from "@vue/apollo-composable";
 
-export default defineComponent({
+
+
+const GET_SOLICITUD = gql`
+  query solicitud {
+    solicituds(where: { solicitudId: { eq: 4 } }) {
+      items {
+        acondicionadorDistinto
+        esExportado
+        estado
+        fechaCreacion
+        fechaRechazo
+        observaciones
+        productoId
+        riesgoTotal
+        solicitudId
+        titularFabricante
+        titularRepresentacion
+        opcions {
+          estado
+          detalle
+          opcionId
+        }
+        documentos {
+          documentoId
+          estado
+          ruta
+          solicitudId
+          tipoDocumentoId
+          tipoDocumento {
+            tipoDocumento1
+          }
+        }
+        producto {
+          envasePrimario
+          estado
+          estadoFisicoId
+          marca
+          materialEmpaque
+          nacional
+          nombre
+          origen
+          presentaciones
+          productoId
+          riesgoSubcategoriaId
+          unIngrediente
+          usuarioId
+          estadoFisico {
+            estadoFisico1
+          }
+          riesgoSubcategoria {
+            riesgoSubcategoria
+          }
+          productoEntidads {
+            entidad {
+              cedula
+              correo
+              direccion
+              entidadId
+              nombre
+              rnc
+              telefono
+            }
+            relacionId
+            relacion {
+              relacionTipo
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export default {
   components: {
+    SidebarInspector,
     HeaderInspector,
-    SidebarInspector
   },
   setup() {
-    const router = useRouter(); // Crear una instancia del enrutador
-    const solicitudId = ref('123'); // Ejemplo de ID
-    const contactoData = ref({
-      nombre: 'Pedro Páramo',
-      direccion: 'Av. Jimenez Moya #67, Santo Domingo'
-    });
+    const { result, loading, error } = useQuery(GET_SOLICITUD);
 
-    const titularData = ref({
-      nombre: 'Pedro Páramo',
-      paisOrigen: 'Alemania',
-      direccion: 'Av. Jimenez Moya #67, Santo Domingo',
-      esFabricante: true,
-      esExportado: true
-    });
-
-    const acondicionadorData = ref({
-      nombre: 'Pedro Páramo',
-      paisOrigen: 'Alemania',
-      direccion: 'Av. Jimenez Moya #67, Santo Domingo',
-      esDistinta: true
-    });
-
-    const certificadosFabricante = ref([
-      { nombre: 'Certificado de Buenas Prácticas de Manufactura', tipo: 'buenasPracticas' },
-      { nombre: 'Certificado de Habilitación de Establecimiento', tipo: 'habilitacion' },
-      { nombre: 'Contrato de Fabricación', tipo: 'contratoFabricacion' }
-    ]);
-
-    const toggleSidebar = () => {
-      // Implementar la lógica para alternar la visibilidad del sidebar
-    };
-
-    const descargarDocumento = (tipo) => {
-      console.log(`Descargando documento: ${tipo}`);
-      // Implementar la lógica de descarga aquí
-    };
-
-    const irASiguiente = () => {
-      router.push(`/evaluacion-registro-sanitario-part3`); // Navegar a la siguiente página
-    };
+    // Computed properties para acceder a los datos
+    const solicitanteData = computed(
+      () =>
+        result.value?.solicituds.items[0]?.producto?.productoEntidads[0]
+          ?.entidad || {}
+    );
+    const titularData = computed(
+      () =>
+        result.value?.solicituds.items[0]?.producto?.productoEntidads[2]
+          ?.entidad || {}
+    );
+    const representanteData = computed(
+      () =>
+        result.value?.solicituds.items[0]?.producto?.productoEntidads[1]
+          ?.entidad || {}
+    );
+    const contactoData = computed(
+      () =>
+        result.value?.solicituds.items[0]?.producto?.productoEntidads[3]
+          ?.entidad || {}
+    ); const fabricanteData = computed(
+      () =>
+        result.value?.solicituds.items[0]?.producto?.productoEntidads[6]
+          ?.entidad || {}
+    );
+    const acondicionadorDataData = computed(
+      () =>
+        result.value?.solicituds.items[0]?.producto?.productoEntidads[5]
+          ?.entidad || {}
+    );
 
     return {
-      contactoData,
+      solicitanteData,
       titularData,
-      acondicionadorData,
-      certificadosFabricante,
-      toggleSidebar,
-      descargarDocumento,
-      irASiguiente
+      representanteData,
+      contactoData,
+      loading,
+      error,
     };
-  }
-});
+  },
+};
 </script>
 
 <style scoped>

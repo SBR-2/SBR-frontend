@@ -2,17 +2,17 @@ import { RouteRecordRaw } from 'vue-router';
 
 const InspectorRoutes: Array<RouteRecordRaw> = [
   {
-    path: '/dashboard',
+    path: '/dashboard-inspector',
     name: 'Dashboard',
     component: () => import('../../components/Inspector/DashboardInspector.vue')
   },
   {
-    path: '/lista-productos',
+    path: '/lista-productos-inspector',
     name: 'ListaProductosInspector',
     component: () => import('../../components/Inspector/ListaProductosInspector.vue')
   },
   {
-    path: '/lista-registros-sanitarios',
+    path: '/lista-registros-sanitarios-inspector',
     name: 'ListaRegistroSanitarioInspector',
     component: () => import('../../components/Inspector/ListaRegistroSanitarioInspector.vue')
   },
@@ -22,7 +22,7 @@ const InspectorRoutes: Array<RouteRecordRaw> = [
     component: () => import('../../components/Inspector/EvaluacionProductoInspector.vue')
   },
   {
-    path: '/evaluacion-registro-sanitario',
+    path: '/evaluacion-registro-sanitario/:solicitudId',
     name: 'EvaluacionRegistroSanitarioInspector',
     component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart1.vue')
   },
@@ -36,6 +36,11 @@ const InspectorRoutes: Array<RouteRecordRaw> = [
     name: 'EvaluacionRegistroSanitarioPart3',
     component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart3.vue')
   },
+  {
+    path:'/prueba',
+    name: 'Prueba',
+    component: () => import('../../components/Inspector/Prueba.vue')
+  }
   
   // ...otras rutas
 ];

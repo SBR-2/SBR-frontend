@@ -33,7 +33,10 @@
                 <td>{{ solicitud.producto.usuario.correo }}</td>
                 <td>{{ formatDate(solicitud.fechaCreacion) }}</td>
                 <td>
-                  <button class="btn btn-primary" @click="evaluar(solicitud.solicitudId)">Evaluar</button>
+                      <router-link :to="{ path: `/evaluacion-registro-sanitario/${solicitud.solicitudId}` }" class="btn btn-primary">
+                        Evaluar
+                      </router-link>
+
                 </td>
               </tr>
             </template>
