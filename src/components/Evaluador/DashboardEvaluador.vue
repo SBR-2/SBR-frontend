@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
-    <SidebarInspector />
+    <SidebarEvaluador />
     <div class="main-content">
-      <HeaderInspector @toggle-sidebar="toggleSidebar" />
+      <HeaderEvaluador @toggle-sidebar="toggleSidebar" />
       <div class="evaluaciones-container">
         <div class="header">
           <h4 class="mb-3">Solicitudes Asignadas</h4>
@@ -41,7 +41,8 @@
                   <td>{{ solicitud.producto.usuario.correo }}</td>
                   <td>{{ formatDate(solicitud.fechaCreacion) }}</td>
                   <td>
-                    <router-link :to="{ path: `/evaluacion-producto/${solicitud.solicitudId}` }" class="btn btn-primary">
+                    <router-link :to="{ path: `/evaluacion-producto/${solicitud.solicitudId}` }"
+                      class="btn btn-primary">
                       Evaluar
                     </router-link>
                   </td>
@@ -59,13 +60,13 @@
 import { defineComponent, ref, computed } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
 import gql from 'graphql-tag';
-import HeaderInspector from './HeaderInspector.vue';
-import SidebarInspector from './SideBarInspector.vue';
+import HeaderEvaluador from './HeaderEvaluador.vue';
+import SidebarEvaluador from './SideBarEvaluador.vue';
 
 export default defineComponent({
   components: {
-    HeaderInspector,
-    SidebarInspector
+    HeaderEvaluador,
+    SidebarEvaluador
   },
   setup() {
     const sidebarVisible = ref(true);
@@ -129,8 +130,10 @@ export default defineComponent({
 
 .main-content {
   flex-grow: 1;
-  margin-left: 100px; /* Ancho del sidebar */
-  padding-top: 60px; /* Altura del header */
+  margin-left: 100px;
+  /* Ancho del sidebar */
+  padding-top: 60px;
+  /* Altura del header */
 }
 
 .evaluaciones-container {

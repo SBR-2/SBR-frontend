@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
-    <SidebarInspector />
+    <SidebarEvaluador />
     <div class="main-content">
-      <HeaderInspector @toggle-sidebar="toggleSidebar" />
+      <HeaderEvaluador @toggle-sidebar="toggleSidebar" />
 
       <h2 class="mb-4 text-start title"><strong>Evaluación de Producto</strong></h2>
 
@@ -123,14 +123,14 @@
 import { defineComponent, ref, computed } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import HeaderInspector from './HeaderInspector.vue'
-import SidebarInspector from './SideBarInspector.vue'
+import HeaderEvaluador from './HeaderEvaluador.vue'
+import SidebarEvaluador from './SideBarEvaluador.vue'
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
   components: {
-    HeaderInspector,
-    SidebarInspector
+    HeaderEvaluador,
+    SidebarEvaluador
   },
   setup() {
     const router = useRouter(); // Obtén el router para navegar

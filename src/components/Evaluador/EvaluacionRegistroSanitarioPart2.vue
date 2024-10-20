@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
     <!-- Sidebar -->
-    <SidebarInspector />
+    <SidebarEvaluador />
 
     <div class="main-content">
       <!-- Header -->
-      <HeaderInspector @toggle-sidebar="toggleSidebar" />
+      <HeaderEvaluador @toggle-sidebar="toggleSidebar" />
 
       <h2 class="mb-4 text-start title">
         <strong>Evaluación de Registro Sanitario</strong>
@@ -239,8 +239,8 @@
 <script>
 import { defineComponent, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import HeaderInspector from "./HeaderInspector.vue";
-import SidebarInspector from "./SideBarInspector.vue";
+import HeaderEvaluador from "./HeaderEvaluador.vue";
+import SidebarEvaluador from "./SideBarEvaluador.vue";
 import gql from "graphql-tag";
 import { useQuery } from "@vue/apollo-composable";
 
@@ -321,8 +321,8 @@ const GET_SOLICITUD = gql`
 
 export default {
   components: {
-    SidebarInspector,
-    HeaderInspector,
+    SidebarEvaluador,
+    HeaderEvaluador,
   },
   setup() {
     const { result, loading, error } = useQuery(GET_SOLICITUD, { solicitudId });

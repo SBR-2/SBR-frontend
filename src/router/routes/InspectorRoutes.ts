@@ -2,45 +2,41 @@ import { RouteRecordRaw } from 'vue-router';
 
 const InspectorRoutes: Array<RouteRecordRaw> = [
   {
-    path: '/dashboard-inspector',
+    path: '/dashboard-evaluador',
     name: 'Dashboard',
-    component: () => import('../../components/Inspector/DashboardInspector.vue')
+    component: () => import('../../components/Evaluador/DashboardEvaluador.vue')
   },
   {
-    path: '/lista-productos-inspector',
-    name: 'ListaProductosInspector',
-    component: () => import('../../components/Inspector/ListaProductosInspector.vue')
+    path: '/lista-productos-evaluador',
+    name: 'ListaProductosEvaluador',
+    component: () => import('../../components/Evaluador/ListaProductosEvaluador.vue')
   },
   {
-    path: '/lista-registros-sanitarios-inspector',
-    name: 'ListaRegistroSanitarioInspector',
-    component: () => import('../../components/Inspector/ListaRegistroSanitarioInspector.vue')
+    path: '/lista-registros-sanitarios-evaluador',
+    name: 'ListaRegistroSanitarioEvaluador',
+    component: () => import('../../components/Evaluador/ListaRegistroSanitarioEvaluador.vue')
   },
   {
     path: '/evaluacion-producto/:solicitudId',
     name: 'EvaluacionProductoInspector',
-    component: () => import('../../components/Inspector/EvaluacionProductoInspector.vue')
+    component: () => import('../../components/Evaluador/EvaluacionProductoEvaluador.vue')
   },
   {
     path: '/evaluacion-registro-sanitario/:solicitudId',
-    name: 'EvaluacionRegistroSanitarioInspector',
-    component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart1.vue')
+    name: 'EvaluacionRegistroSanitarioEvaluador',
+    component: () => import('../../components/Evaluador/EvaluacionRegistroSanitarioPart1.vue')
   },
   {
     path: '/evaluacion-registro-sanitario-part2/:solicitudId',
     name: 'EvaluacionRegistroSanitarioPart2',
-    component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart2.vue')
+    component: () => import('../../components/Evaluador/EvaluacionRegistroSanitarioPart2.vue')
   },
   {	
     path: '/evaluacion-registro-sanitario-part3/:solicitudId',
     name: 'EvaluacionRegistroSanitarioPart3',
-    component: () => import('../../components/Inspector/EvaluacionRegistroSanitarioPart3.vue')
+    component: () => import('../../components/Evaluador/EvaluacionRegistroSanitarioPart3.vue')
   },
-  {
-    path:'/prueba',
-    name: 'Prueba',
-    component: () => import('../../components/Inspector/Prueba.vue')
-  }
+
   
   // ...otras rutas
 ];

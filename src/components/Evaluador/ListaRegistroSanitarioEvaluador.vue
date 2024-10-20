@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
-    <SidebarInspector />
+    <SidebarEvaluador />
     <div class="main-content">
-      <HeaderInspector @toggle-sidebar="toggleSidebar" />
+      <HeaderEvaluador @toggle-sidebar="toggleSidebar" />
       <h2 class="mb-4">Registro Sanitario</h2>
       <div class="search-container mb-4">
         <input v-model="searchQuery" type="text" class="form-control" placeholder="Buscar Producto" />
@@ -33,9 +33,10 @@
                 <td>{{ solicitud.producto.usuario.correo }}</td>
                 <td>{{ formatDate(solicitud.fechaCreacion) }}</td>
                 <td>
-                      <router-link :to="{ path: `/evaluacion-registro-sanitario/${solicitud.solicitudId}` }" class="btn btn-primary">
-                        Evaluar
-                      </router-link>
+                  <router-link :to="{ path: `/evaluacion-registro-sanitario/${solicitud.solicitudId}` }"
+                    class="btn btn-primary">
+                    Evaluar
+                  </router-link>
 
                 </td>
               </tr>
@@ -51,13 +52,13 @@
 import { defineComponent, ref, computed } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
 import gql from 'graphql-tag';
-import HeaderInspector from './HeaderInspector.vue';
-import SidebarInspector from './SideBarInspector.vue';
+import HeaderEvaluador from './HeaderEvaluador.vue';
+import SidebarEvaluador from './SideBarEvaluador.vue';
 
 export default defineComponent({
   components: {
-    HeaderInspector,
-    SidebarInspector
+    HeaderEvaluador,
+    SidebarEvaluador
   },
   setup() {
     const searchQuery = ref('');
@@ -137,8 +138,10 @@ export default defineComponent({
 
 .main-content {
   flex-grow: 1;
-  margin-left: 80px; /* Ancho del sidebar */
-  padding-top: 60px; /* Altura del header */
+  margin-left: 80px;
+  /* Ancho del sidebar */
+  padding-top: 60px;
+  /* Altura del header */
 }
 
 .search-container {

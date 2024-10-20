@@ -1,8 +1,8 @@
 <template>
     <div class="app-container">
-      <SidebarInspector />
+      <SidebarEvaluador />
       <div class="main-content">
-        <HeaderInspector @toggle-sidebar="toggleSidebar" />
+        <HeaderEvaluador @toggle-sidebar="toggleSidebar" />
         <div class="evaluaciones-container">
           <h2 class="mb-4">Evaluación de Producto</h2>
           <div class="search-container mb-4">
@@ -52,15 +52,15 @@
   </template>
   
   <script>
-  import HeaderInspector from './HeaderInspector.vue';
-  import SidebarInspector from './SideBarInspector.vue';
+  import HeaderEvaluador from './HeaderEvaluador.vue';
+  import SidebarEvaluador from './SideBarEvaluador.vue';
   import gql from 'graphql-tag';
   import { useQuery } from '@vue/apollo-composable';
   
   export default {
     components: {
-      HeaderInspector,
-      SidebarInspector
+      HeaderEvaluador,
+      SidebarEvaluador
     },
     setup() {
       const GET_EVALUACION_PRODUCTO = gql`

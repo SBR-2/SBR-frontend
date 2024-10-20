@@ -39,20 +39,20 @@ export default defineComponent({
   setup() {
     const menuItems = ref<MenuItem[]>([
       {
-        href: '/dashboard-inspector',
+        href: '/dashboard-evaluador',
         iconSrc: 'https://cdn.builder.io/api/v1/image/assets/TEMP/244c2ef8403b2f058bbd6eff2428ff5230c54208dacd7f54f15a2267501bf0f2?placeholderIfAbsent=true&apiKey=729dc09cd15c473da7916659c4854519',
         text: 'DashBoard',
         isActive: true,
     
       },
       {
-        href: '/lista-productos-inspector',
+        href: '/lista-productos-evaluador',
         iconSrc: 'https://cdn.builder.io/api/v1/image/assets/TEMP/bbd24d71c40c01c1a9229d29d6731c2504eeb997ed996908b0d54380637c985b?placeholderIfAbsent=true&apiKey=729dc09cd15c473da7916659c4854519',
         text: 'Lista Productos',
         isActive: false,
       },
       {
-        href: '/lista-registros-sanitarios-inspector',
+        href: '/lista-registros-sanitarios-evaluador',
         iconSrc: 'https://cdn.builder.io/api/v1/image/assets/TEMP/b515d85894191eb4ac2895e8c63ed8183845da7f1d65a05f207b42a3cb231de0?placeholderIfAbsent=true&apiKey=729dc09cd15c473da7916659c4854519',
         text: 'Lista de Registros Sanitarios',
         isActive: false,
