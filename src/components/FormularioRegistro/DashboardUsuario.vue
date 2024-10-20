@@ -265,7 +265,7 @@ export default {
   white-space: nowrap; /* Evita que el texto pase a otra línea */
   overflow: hidden;    /* Oculta el desbordamiento del texto */
   text-overflow: ellipsis; /* Añade puntos suspensivos (...) si el texto es muy largo */
-
+}
 .card-small h5 {
   font-size: 1.5rem;
   white-space: nowrap;
