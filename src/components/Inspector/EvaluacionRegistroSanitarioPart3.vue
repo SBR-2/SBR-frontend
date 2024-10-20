@@ -118,8 +118,8 @@
   
           <!-- Botones de Aceptar/Rechazar -->
           <div class="mt-4 text-start">
-            <button class="btn btn-success btn-approval">Aceptar</button>
-            <button class="btn btn-danger btn-approval">Rechazar</button>
+           <button class="btn btn-success btn-approval" @click="approveProduct"><strong>Aprobar</strong></button>
+        <button class="btn btn-danger btn-approval" @click="rejectProduct"><strong>Rechazar</strong></button>
           </div>
   
         </div>
@@ -133,7 +133,7 @@ import { useRoute, useRouter } from "vue-router";
 import HeaderInspector from "./HeaderInspector.vue";
 import SidebarInspector from "./SideBarInspector.vue";
 import gql from "graphql-tag";
-import { useQuery } from "@vue/apollo-composable";
+import { useQuery, useMutation } from "@vue/apollo-composable";
 
 const solicitudId = ref(parseInt(window.location.pathname.split('/').pop(), 10) || 1); // ID de la solicitud seleccionada
 
@@ -207,12 +207,112 @@ const solicitudId = ref(parseInt(window.location.pathname.split('/').pop(), 10) 
     }
   }
 `;
+
 export default {
   components: {
     SidebarInspector,
     HeaderInspector,
   },
+  
   setup() {
+    
+const APROBAR_PRODUCTO = gql`
+      mutation AprobarProducto($solicitudId: Int!, $productoId: Int!) {
+        updateSolicitud(
+          solicitudInput: {
+            acondicionadorDistinto: true
+            esExportado: true
+            estado: "aceptada"
+            observaciones: "null"
+            productoId: $productoId
+            solicitudId: $solicitudId
+            titularFabricante: true
+            titularRepresentacion: true
+          }
+        ) {
+          solicitud {
+            productoId
+            solicitudId
+            estado
+          }
+        }
+      }
+    `;
+    const RECHAZAR_PRODUCTO = gql`
+      mutation RechazarProducto($solicitudId: Int!, $productoId: Int!) {
+        updateSolicitud(
+          solicitudInput: {
+            acondicionadorDistinto: true
+            esExportado: true
+            estado: "rechazada"
+            observaciones: "null"
+            productoId: $productoId
+            solicitudId: $solicitudId
+            titularFabricante: true
+            titularRepresentacion: true
+          }
+        ) {
+          solicitud {
+            productoId
+            solicitudId
+            estado
+          }
+        }
+      }
+    `;
+       const solicitudData = computed(() => result.value?.solicituds.items[0] || null);
+
+   const { mutate: approveProductMutation, loading: approveLoading, error: approveError } = useMutation(APROBAR_PRODUCTO);
+    const { mutate: rejectProductMutation } = useMutation(RECHAZAR_PRODUCTO);
+    const approveProduct = () => {
+      if (!solicitudData.value) {
+        console.error('No hay datos de solicitud disponibles');
+        return;
+      }
+
+      const productoId = parseInt(solicitudData.value.productoId, 10);
+      const solicitudIdValue = parseInt(solicitudData.value.solicitudId, 10);
+      console.log('Aprobando PRO con ID:', APROBAR_PRODUCTO);
+      console.log('Aprobando solicitud con ID:', solicitudIdValue);
+      console.log('Aprobando PRO con ID:', productoId);
+
+
+      approveProductMutation({
+          solicitudId: solicitudIdValue,
+          productoId: productoId,
+      })
+      .then((response) => {
+        console.log('Producto aprobado:', response.data.updateSolicitud.solicitud);
+              })
+      .catch((error) => {
+        console.error('Error al aprobar el producto:', error.graphQLErrors || error);
+      });
+    };
+    
+
+
+   
+    const rejectProduct = () => {
+      if (!solicitudData.value) {
+        console.error('No hay datos de solicitud disponibles');
+        return;
+      }
+
+      const productoId = parseInt(solicitudData.value.productoId, 10);
+      const solicitudIdValue = parseInt(solicitudData.value.solicitudId, 10);
+
+      rejectProductMutation({
+        solicitudId: solicitudIdValue,
+        productoId: productoId,
+      })
+        .then((response) => {
+          console.log('Producto rechazado:', response.data.updateSolicitud.solicitud);
+        })
+        .catch((error) => {
+          console.error('Error al rechazar el producto:', error.graphQLErrors || error);
+        });
+    };
+
     const { result, loading, error } = useQuery(GET_SOLICITUD, {solicitudId});
 
     // Computed properties para acceder a los datos
@@ -257,10 +357,14 @@ export default {
       solicitanteData,
       titularData,
       representanteData,
+      approveProduct,
+      rejectProduct,
       contactoData,
       filteredDocuments,
       loading,
       error,
+      approveLoading,
+      approveError,
     };
   },
 };

@@ -33,6 +33,14 @@
           </div>
         </div>
         <!-- Documentos para Información General -->
+        <div
+              v-if="
+                filteredDocuments('Certificado de Marca', 'Certificado de venta libre').length === 0
+              "
+              class="alert alert-warning"
+            >
+              No hay documentos de Certificado de Marca y de Venta Libre .
+            </div>
         <div v-for="document in filteredDocuments('Certificado de Marca', 'Certificado de venta libre')" :key="document.tipoDocumentoId" class="mb-3">
           <label class="form-label"><strong class="label-bold">{{ document.tipoDocumento.tipoDocumento1 }}</strong></label>
           <a :href="document.ruta" class="btn btn-primary btn-sm btn-download" target="_blank">Descargar</a>
@@ -88,6 +96,14 @@
           <p class="label-value">{{ productData?.presentaciones || 'No disponible' }}</p>
         </div>
         <!-- Documentos para Información Empaque -->
+        <div
+              v-if="
+                filteredDocuments('Esquema y especificaciones de empaque primario', 'Arte de etiqueta').length === 0
+              "
+              class="alert alert-warning"
+            >
+              No hay documentos disponibles de los Esquema y especificaciones de empaque primario y Arte de etiqueta.
+            </div>
         <div v-for="document in filteredDocuments('Esquema y especificaciones de empaque primario', 'Arte de etiqueta')" :key="document.tipoDocumentoId" class="mb-3">
           <label class="form-label"><strong class="label-bold">{{ document.tipoDocumento.tipoDocumento1 }}</strong></label>
           <a :href="document.ruta" class="btn btn-primary btn-sm btn-download" target="_blank">Descargar</a>

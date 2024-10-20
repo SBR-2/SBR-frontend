@@ -168,17 +168,17 @@
         <div class="flex-container">
           <div class="flex-item">
             <h4 class="sub-title"><strong>Nombre</strong></h4>
-            <p class="label-value">x</p>
+            <p class="label-value">{{acondicionadorDataData.nombre||"No disponible"}}</p>
           </div>
         </div>
         <div class="flex-container">
           <div class="flex-item">
             <h4 class="sub-title"><strong>País de origen</strong></h4>
-            <p class="label-value">x</p>
+            <p class="label-value">No disponible</p>
           </div>
           <div class="flex-item">
             <h4 class="sub-title"><strong>Dirección</strong></h4>
-            <p class="label-value">x</p>
+            <p class="label-value">{{acondicionadorDataData.direccion||"No disponible"}}</p>
           </div>
         </div>
 
@@ -221,9 +221,16 @@
 
       <!-- Botón de Siguiente -->
       <div class="mt-4 text-end">
-        <button class="btn btn-primary btn-download" @click="irASiguiente">
-          <strong>Siguiente</strong>
-        </button>
+        <div class="mt-4 text-right">
+        <router-link
+          :to="{
+            path: `/evaluacion-registro-sanitario-part3/${solicitudData.solicitudId}`,
+          }"
+          class="btn btn-primary btn-download"
+        >
+          Siguiente
+        </router-link>
+      </div>
       </div>
     </div>
   </div>
@@ -319,6 +326,7 @@ export default {
   },
   setup() {
     const { result, loading, error } = useQuery(GET_SOLICITUD, { solicitudId });
+    const solicitudData = computed(() => result.value?.solicituds.items[0] || null);
 
     // Computed properties para acceder a los datos
     const solicitanteData = computed(
@@ -364,8 +372,10 @@ export default {
     return {
       solicitanteData,
       titularData,
+      solicitudData,
       representanteData,
       contactoData,
+      acondicionadorDataData,
       filteredDocuments,
       loading,
       error,

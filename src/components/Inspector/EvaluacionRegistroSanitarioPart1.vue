@@ -169,7 +169,7 @@
       <div class="mt-4 text-right">
         <router-link
           :to="{
-            path: `/evaluacion-registro-sanitario-part2/${solicitanteData.solicitudId}`,
+            path: `/evaluacion-registro-sanitario-part2/${solicitudData.solicitudId}`,
           }"
           class="btn btn-primary btn-download"
         >
@@ -269,6 +269,7 @@ export default {
   },
   setup() {
     const { result, loading, error } = useQuery(GET_SOLICITUD, {solicitudId});
+    const solicitudData = computed(() => result.value?.solicituds.items[0] || null);
 
     // Computed properties para acceder a los datos
     const solicitanteData = computed(
@@ -301,6 +302,7 @@ export default {
     return {
       solicitanteData,
       titularData,
+      solicitudData,
       representanteData,
       contactoData,
       filteredDocuments,  
