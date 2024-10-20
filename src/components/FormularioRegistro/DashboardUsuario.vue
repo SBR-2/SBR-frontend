@@ -1,132 +1,136 @@
 <template>
-  <div class="dashboardContainer d-flex">
-    <SidebarUser />
-    <div class="container">
-      <h4>Resumen de registros</h4>
+  <SolicitanteSidebarLayout>
+      <template v-slot:contents>
+        <div class="dashboardContainer d-flex">
+          <div class="container">
+            <h4>Resumen de registros</h4>
 
-      <!-- Dynamic Header with Indicators -->
-      <div class="row mb-4 text-start">
-        <div class="col">
-          <div class="card cardIndicator bg-success text-white">
-            <div class="card-body">
-              <h5 class="card-title">{{ approvedCount }} <br /> aprobados</h5>
+            <!-- Dynamic Header with Indicators -->
+            <div class="row mb-4 text-start">
+              <div class="col">
+                <div class="card cardIndicator bg-success text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ approvedCount }} <br /> aprobados</h5>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="col">
+                <div class="card cardIndicator bg-primary text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ expiredCount }} <br /> vencidos</h5>
+                  </div>
+                </div>
+              </div> -->
+              <div class="col">
+                <div class="card cardIndicator bg-danger text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ rejectedCount }} <br /> rechazados</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="card cardIndicator bg-secondary text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ pendingCount }} <br /> pendientes</h5>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <!-- <div class="col">
-          <div class="card cardIndicator bg-primary text-white">
-            <div class="card-body">
-              <h5 class="card-title">{{ expiredCount }} <br /> vencidos</h5>
-            </div>
-          </div>
-        </div> -->
-        <div class="col">
-          <div class="card cardIndicator bg-danger text-white">
-            <div class="card-body">
-              <h5 class="card-title">{{ rejectedCount }} <br /> rechazados</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card cardIndicator bg-secondary text-white">
-            <div class="card-body">
-              <h5 class="card-title">{{ pendingCount }} <br /> pendientes</h5>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Registros Section -->
-      <div class="row">
-        <div class="col-12">
-          <h4>Registros:</h4>
-          <router-link to="/user/registro">
-            <button
-              class="btn btn-primary mb-3 d-flex align-items-center justify-content-center"
-            >
-              <IconNew class="me-2" />Crear nuevo registro
-            </button>
-          </router-link>
-
-          <!-- Filters Section
-          <div class="filters">
+            <!-- Registros Section -->
             <div class="row">
-              <div class="col-6">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="showExpired" />
-                  <label class="form-check-label" for="showExpired">Mostrar solo vencidos</label>
-                </div>
-              </div>
-              <div class="col-6 text-end">
-                <input type="text" class="form-control" placeholder="Buscar por producto" />
-              </div>
-            </div>
-          </div> -->
+              <div class="col-12">
+                <h4>Registros:</h4>
+                <router-link to="/user/registro">
+                  <button
+                    class="btn btn-primary mb-3 d-flex align-items-center justify-content-center"
+                  >
+                    <IconNew class="me-2" />Crear nuevo registro
+                  </button>
+                </router-link>
 
-          <!-- Dynamic Product Cards Grid -->
-          <div class="row">
-            <div
-              v-for="(producto, index) in productos"
-              :key="producto.productoId"
-              class="col-12 col-md-6 col-lg-4 mb-3"
-            >
-              <div class="card card-small">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">{{ producto.nombre }}</h5>
-                    <!-- <button class="btn btn-primary" v-if="producto.estado === 'Activo'">Renovar</button> -->
-                  </div>
-                  <div class="mt-3">
-                    <div><strong>Riesgo </strong>{{ producto.riesgoSubcategoria.riesgo.riesgo1 }}</div>
-                    <div><strong>Producto: </strong><span class="text-warning">&#9679;</span></div>
-                    <div><strong>Establecimiento: </strong><span class="text-success">&#9679;</span></div>
-                    <div><strong>General: </strong><span class="text-warning">&#9679;</span></div>
-                  </div>
-                  <div class="mt-3 text-end">
-                    <p>Próxima inspección: 17/10/2023</p>
-                    <p>Emisión: 17/10/2023</p>
-                    <p>Vencimiento: 17/10/2024</p>
-                  </div>
-                  <div class="text-start">
-                    <!-- <button class="btn btn-outline-secondary"><i class="bi bi-download"></i> Descargar</button> -->
-                  </div>
-                  <div class="mt-3">
-                    <!-- Riesgo Total -->
-                    <div>
-                      <strong>Riesgo total: </strong>
-                      <!-- Punto de color según el riesgo total -->
-                      <span
-                        class="riesgo-indicator"
-                        :class="getRiesgoTotalClass(producto.solicituds[0].riesgoTotal)"
-                      >
-                        &#9679;
-                      </span>
-                      {{ getRiesgoTotalLabel(producto.solicituds[0].riesgoTotal) }}
+                <!-- Filters Section
+                <div class="filters">
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showExpired" />
+                        <label class="form-check-label" for="showExpired">Mostrar solo vencidos</label>
+                      </div>
                     </div>
-                    
-                    <!-- Riesgo Subcategoria -->
-                    <div class="mt-2">
-                      <strong>Riesgo del producto: </strong>
-                      <!-- Punto de color según el riesgo de la subcategoría -->
-                      <span
-                        class="riesgo-indicator"
-                        :class="getRiesgoSubcategoriaClass(producto.riesgoSubcategoria.riesgo.riesgo1)"
-                      >
-                        &#9679;
-                      </span>
-                      {{ getRiesgoSubcategoriaLabel(producto.riesgoSubcategoria.riesgo.riesgo1) }}
+                    <div class="col-6 text-end">
+                      <input type="text" class="form-control" placeholder="Buscar por producto" />
                     </div>
+                  </div>
+                </div> -->
 
-                    <!-- Mostrar estado solo si tiene solicitudes -->
-                    <div v-if="producto.solicituds && producto.solicituds.length > 0" class="mt-2">
-                      <strong>Estado de solicitud: </strong>
-                      <span 
-                        class="estado-indicator"
-                        :class="getEstadoClass(producto.solicituds[0].estado)"
-                      >
-                        &#9679;
-                      </span>
-                      {{ producto.solicituds[0].estado.toUpperCase() }}
+                <!-- Dynamic Product Cards Grid -->
+                <div class="row">
+                  <div
+                    v-for="(producto, index) in productos"
+                    :key="producto.productoId"
+                    class="col-12 col-md-6 col-lg-4 mb-3"
+                  >
+                    <div class="card card-small">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <h5 class="card-title">{{ producto.nombre }}</h5>
+                          <!-- <button class="btn btn-primary" v-if="producto.estado === 'Activo'">Renovar</button> -->
+                        </div>
+                        <div class="mt-3">
+                          <div><strong>Riesgo </strong>{{ producto.riesgoSubcategoria.riesgo.riesgo1 }}</div>
+                          <div><strong>Producto: </strong><span class="text-warning">&#9679;</span></div>
+                          <div><strong>Establecimiento: </strong><span class="text-success">&#9679;</span></div>
+                          <div><strong>General: </strong><span class="text-warning">&#9679;</span></div>
+                        </div>
+                        <div class="mt-3 text-end">
+                          <p>Próxima inspección: 17/10/2023</p>
+                          <p>Emisión: 17/10/2023</p>
+                          <p>Vencimiento: 17/10/2024</p>
+                        </div>
+                        <div class="text-start">
+                          <!-- <button class="btn btn-outline-secondary"><i class="bi bi-download"></i> Descargar</button> -->
+                        </div>
+                        <div class="mt-3">
+                          <!-- Riesgo Total -->
+                          <div>
+                            <strong>Riesgo total: </strong>
+                            <!-- Punto de color según el riesgo total -->
+                            <span
+                              class="riesgo-indicator"
+                              :class="getRiesgoTotalClass(producto.solicituds[0].riesgoTotal)"
+                            >
+                              &#9679;
+                            </span>
+                            {{ getRiesgoTotalLabel(producto.solicituds[0].riesgoTotal) }}
+                          </div>
+                          
+                          <!-- Riesgo Subcategoria -->
+                          <div class="mt-2">
+                            <strong>Riesgo del producto: </strong>
+                            <!-- Punto de color según el riesgo de la subcategoría -->
+                            <span
+                              class="riesgo-indicator"
+                              :class="getRiesgoSubcategoriaClass(producto.riesgoSubcategoria.riesgo.riesgo1)"
+                            >
+                              &#9679;
+                            </span>
+                            {{ getRiesgoSubcategoriaLabel(producto.riesgoSubcategoria.riesgo.riesgo1) }}
+                          </div>
+
+                          <!-- Mostrar estado solo si tiene solicitudes -->
+                          <div v-if="producto.solicituds && producto.solicituds.length > 0" class="mt-2">
+                            <strong>Estado de solicitud: </strong>
+                            <span 
+                              class="estado-indicator"
+                              :class="getEstadoClass(producto.solicituds[0].estado)"
+                            >
+                              &#9679;
+                            </span>
+                            {{ producto.solicituds[0].estado.toUpperCase() }}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -134,21 +138,20 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+    </template>
+  </SolicitanteSidebarLayout>
 </template>
 
 <script>
-import SidebarUser from "./SidebarUser.vue";
 import IconNew from "../icons/IconNew.vue";
 import { useProductFormStore } from "../../stores/productFormLogic";
+import SolicitanteSidebarLayout from "../ui/layouts/SolicitanteSidebarLayout.vue";
 
 export default {
   name: "Dashboard",
   components: {
     IconNew,
-    SidebarUser,
+    SolicitanteSidebarLayout,
   },
   async setup() {
     const logic = useProductFormStore();

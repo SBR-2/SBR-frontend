@@ -85,6 +85,7 @@ export default {
             authStore: useAuthStore(),
             toast: useToast(),
             sidebarLinks: [
+                { to: '/user/dashboard', icon: 'fas fa-clipboard-check', label: 'Dashboard' },
                 { to: '/solicitante/lista-productos', icon: 'fas fa-columns', label: 'Lista de Productos' },
             ],
             showModal: false
