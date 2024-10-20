@@ -1,4 +1,6 @@
 <template>
+  <AdminSidebarLayout>
+    <template v-slot:contents>
   <div class="container">
     <div class="row justify-content-center mt-5">
       <div class="col-md-6">
@@ -57,14 +59,15 @@
     </div>
 
     <!-- Including panel-principal component -->
-    <panel-principal />
   </div>
+    </template>
+  </AdminSidebarLayout>
 </template>
 
 <script>
 import { ref, onMounted, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import PanelPrincipal from "./panel-principal.vue";
+import AdminSidebarLayout from "../ui/layouts/AdminSidebarLayout.vue";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import gql from "graphql-tag";
 import { useToast } from "vue-toastification";
@@ -100,7 +103,7 @@ const UPDATE_USUARIO = gql`
 
 export default {
   components: {
-    PanelPrincipal,
+    AdminSidebarLayout,
   },
   setup() {
     const route = useRoute();

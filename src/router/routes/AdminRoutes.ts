@@ -12,32 +12,32 @@ const adminRoutes: Array<RouteRecordRaw> = [
         component: () => import('../../components/Admin/dashboard.vue')
     },
     {
-        path: '/listaUsuarios',
+        path: '/admin/listaUsuarios',
         name: 'listaUsuarios',
         component: () => import('../../components/Admin/listausuario.vue')
     },
     {
-        path: '/inspeccion',
+        path: '/admin/inspeccion',
         name: 'inspeccion',
         component: () => import('../../components/Admin/inspeccion.vue')
     },
     {
-        path: '/evaluacion',
+        path: '/admin/evaluacion',
         name: 'evaluacion',
         component: () => import('../../components/Admin/evaluacion.vue')
     },
     {
-        path: '/editarUsuario/:userId',
+        path: '/admin/editarUsuario/:userId',
         name: 'editarUsuario',
         component: () => import('../../components/Admin/editarUsuario.vue')
     },
     {
-        path: '/personal',
+        path: '/admin/personal',
         name: 'personal',
         component: () => import('../../components/Admin/personal.vue')
     },
     {
-        path: '/crearUsuario',
+        path: '/admin/crearUsuario',
         name: 'crearUsuario',
         component: () => import('../../components/Admin/crearUsuario.vue')
     },

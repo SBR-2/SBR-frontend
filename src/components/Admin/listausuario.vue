@@ -1,4 +1,6 @@
 <template>
+  <AdminSidebarLayout>
+    <template v-slot:contents>
   <div class="container">
     <div class="user-list-container">
       <h4 class="titulo d-flex">Lista de Usuarios</h4>
@@ -50,13 +52,14 @@
       </table>
       <p v-else-if="loading">Cargando...</p>
       <p v-else>No se han encontrado usuarios</p>
-      <PanelPrincipal />
     </div>
   </div>
+    </template>
+  </AdminSidebarLayout>
 </template>
 
 <script>
-import PanelPrincipal from "./panel-principal.vue";
+import AdminSidebarLayout from "../ui/layouts/AdminSidebarLayout.vue";
 import { ref, computed, onMounted } from "vue";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import { useToast } from "vue-toastification";
@@ -66,7 +69,7 @@ import { formatDate } from "@/utils/formatDate";
 
 export default {
   components: {
-    PanelPrincipal,
+    AdminSidebarLayout,
   },
   setup() {
     const result = ref(null);

@@ -1,4 +1,6 @@
 <template>
+  <AdminSidebarLayout>
+    <template v-slot:contents>
   <div class="container">
     <div class="user-list-container">
       <h4 class="titulo d-flex">Asignación Inspección</h4>
@@ -68,13 +70,13 @@
         </tbody>
       </table>
     </div>
-    <!-- Componente PanelPrincipal -->
-    <PanelPrincipal />
   </div>
+    </template>
+  </AdminSidebarLayout>
 </template>
 
 <script>
-import PanelPrincipal from './panel-principal.vue';
+import AdminSidebarLayout from '../ui/layouts/AdminSidebarLayout.vue';
 import { ref, watch, computed, defineComponent } from 'vue';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { useToast } from 'vue-toastification';
@@ -83,7 +85,7 @@ import { UPDATE_FICHA } from '../../controllers/graphql/mutations/admin/adminMut
 
 export default defineComponent({
   components: {
-    PanelPrincipal,
+    AdminSidebarLayout,
   },
   setup() {
     const searchTerm = ref('');

@@ -1,4 +1,6 @@
 <template>
+  <AdminSidebarLayout>
+    <template v-slot:contents>
   <div class="container">
     <div>
       <div class="user-list-container">
@@ -68,20 +70,21 @@
         </tbody>
       </table>
     </div>
-    <PanelPrincipal />
   </div>
+    </template>
+  </AdminSidebarLayout>
 </template>
 
 <script>
 import { ref, computed, watch } from "vue";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import gql from "graphql-tag";
-import PanelPrincipal from "./panel-principal.vue";
+import AdminSidebarLayout from "../ui/layouts/AdminSidebarLayout.vue";
 import { useToast } from "vue-toastification";
 
 export default {
   components: {
-    PanelPrincipal,
+    AdminSidebarLayout,
   },
   setup() {
     const toast = useToast();

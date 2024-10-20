@@ -1,4 +1,6 @@
 <template>
+  <AdminSidebarLayout>
+    <template v-slot:contents>
   <div>
     <div class="container h4">Información Personal</div>
     <div class="row mb-3">
@@ -15,10 +17,12 @@
     </div>
     <PanelPrincipal />
   </div>
+  </template>
+  </AdminSidebarLayout>
 </template>
 
 <script>
-import PanelPrincipal from "./panel-principal.vue";
+import AdminSidebarLayout from "../ui/layouts/AdminSidebarLayout.vue";
 import { ref, onMounted } from "vue";
 import { gql } from "graphql-tag";
 import { useQuery } from "@vue/apollo-composable";
@@ -37,7 +41,7 @@ const GET_USUARIO = gql`
 
 export default {
   components: {
-    PanelPrincipal,
+    AdminSidebarLayout,
   },
   setup() {
     // Inicialización de valores

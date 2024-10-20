@@ -92,7 +92,7 @@
                     <span class="">Administrador</span>
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <router-link to="/personal">
+                    <router-link to="/admin/personal">
                       <li><a class="dropdown-item btn">Personal</a></li>
                     </router-link>
                     <li @click="logout"><a class="dropdown-item">Cerrar sesión</a></li>

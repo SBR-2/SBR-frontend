@@ -1,4 +1,6 @@
 <template>
+  <AdminSidebarLayout>
+    <template v-slot:contents>
   <div>
     <div class="container">
       <h5 class="m-5 d-flex dashboard-title">Dashboard</h5>
@@ -96,11 +98,12 @@
     </div>
   </div>
 
-  <PanelPrincipal />
+    </template>
+  </AdminSidebarLayout>
 </template>
 
 <script>
-import PanelPrincipal from "./panel-principal.vue";
+import AdminSidebarLayout from "../ui/layouts/AdminSidebarLayout.vue";
 import { ref } from "vue";
 import { gql } from "graphql-tag";
 import { useQuery } from "@vue/apollo-composable";
@@ -145,7 +148,7 @@ const GET_USUARIOS_ESTADO = gql`
 
 export default {
   components: {
-    PanelPrincipal,
+    AdminSidebarLayout,
   },
   setup() {
     const activosCount = ref(0);

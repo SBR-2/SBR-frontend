@@ -17,7 +17,7 @@
                                     aria-expanded="false">
                                     <img :src="'/profile.svg'" alt="profile Logo"
                                         class="img-fluid me-2 profile-logo" />
-                                    <span class="">Solicitante</span>
+                                    <span class="">Administrador</span>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <router-link to="/admin/personal">
@@ -85,8 +85,11 @@ export default {
             authStore: useAuthStore(),
             toast: useToast(),
             sidebarLinks: [
-                { to: '/user/dashboard', icon: 'fas fa-clipboard-check', label: 'Dashboard' },
-                { to: '/solicitante/lista-productos', icon: 'fas fa-columns', label: 'Lista de Productos' },
+                { to: '/admin/dashboard', icon: 'fas fa-clipboard-check', label: 'Dashboard' },
+                { to: '/admin/listaUsuarios', icon: 'fa-solid fa-people-group', label: 'Lista de Usuarios' },
+                { to: '/admin/evaluacion', icon: 'fa-solid fa-check-to-slot', label: 'Asignación de Evaluación' },
+                { to: '/admin/inspeccion', icon: 'fa-solid fa-magnifying-glass', label: 'Asignación de Inspección' },
+
             ],
             showModal: false
         };
