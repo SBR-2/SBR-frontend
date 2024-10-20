@@ -40,6 +40,9 @@
             <div v-else class="account-requested">
                 <h2 style="margin-bottom: 15px;">Solicitar Cuenta</h2>
                 <p style="margin-bottom: 15px;">Tu solicitud fue enviada y ya está siendo evaluada, intenta iniciar sesion.</p>
+                <router-link :to="'/login'" class="link" style="text-align: right; width: auto; display: block; margin-top: 7.5px;">
+                    Inicia sesión
+                </router-link>
             </div>
         </div>
     </div>
@@ -48,13 +51,9 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useToast } from "vue-toastification";
-// import { useMutation } from '@vue/apollo-composable';
-// import { useQuery } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import PasswordField from '../../components/ui/forms/PasswordField.vue';
-// import { useAuthStore } from '../../stores/authStore';
-// import { LOGIN_MUTATION } from '../../controllers/graphql/mutations/auth/loginMutations';
-// import { GET_USUARIOS } from "../../controllers/graphql/queries/userQueries";
-// import router from '../../router/router';
+import { CREAR_USUARIO_MUTATION } from '../../controllers/graphql/mutations/admin/adminMutations';
 
 export default defineComponent({
     components: {
@@ -69,17 +68,29 @@ export default defineComponent({
         const loading = ref(false);
         const requested = ref(false);
         const toast = useToast();
-        
-        console.log(requested.value);
 
-        const registerUser = () => {
-            console.log(newUser.value);
-
-            // TODO: Registration logic
-
-            requested.value = true;
-            toast.success('Solicitud enviada correctamente');
-        }
+        const { mutate: crearUsuario } = useMutation(CREAR_USUARIO_MUTATION);
+        const registerUser = async () => {
+            loading.value = true;
+            try {
+                await crearUsuario({
+                    input: {
+                        nombre: newUser.value.fullName,
+                        correo: newUser.value.email,
+                        rolId: "",
+                        entidadId: 1, 
+                        password: newUser.value.password,
+                    }
+                });
+                toast.success('Solicitud enviada correctamente');
+                requested.value = true;
+            } catch (error) {
+                console.error('Error al solicitar cuenta:', error);
+                toast.error('Error al solicitar cuenta');
+            } finally {
+                loading.value = false;
+            }
+        };
 
         return {
             newUser,

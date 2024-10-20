@@ -4,6 +4,7 @@ import { useToast } from "vue-toastification";
 import { useRouter } from "vue-router";
 import apolloClient from "../../src/apolloClient"; // Asegúrate de ajustar la ruta
 import gql from "graphql-tag";
+import { parse } from "path";
 import { mapeoValores } from "./claves";
 
 const GET_PRODUCTS = gql`
@@ -634,6 +635,7 @@ export const useProductFormStore = defineStore("productForm", () => {
       
       console.log("Productos del usuario:", productosFiltrados);
       return productosFiltrados;
+
     } catch (err) {
       console.error("GraphQL Error:", err);
     }

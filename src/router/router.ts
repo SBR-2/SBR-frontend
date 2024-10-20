@@ -1,14 +1,18 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import authRoutes from "./routes/authRoutes";
+import adminRoutes from './routes/AdminRoutes';
+import userRoutes from './routes/userRoutes';
 import userRoutes from "./routes/userRoutes";
 import adminRoutes from "./routes/AdminRoutes";
 import EvaluadorRoutes from "./routes/EvaluadorRoutes";
 import InspectorRoutes from "./routes/InspectorRoutes";
 import { useAuthStore } from "../stores/authStore";
 import { useToast } from "vue-toastification";
+import aplicantRoutes from "./routes/aplicantRoutes";
 
 // Definición de las rutas
 const routes: Array<RouteRecordRaw> = [
+  ...aplicantRoutes,
   ...authRoutes,
   ...userRoutes,
   ...EvaluadorRoutes,

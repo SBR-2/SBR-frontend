@@ -104,8 +104,11 @@ export default defineComponent({
                     if (user) {
                         // Guardar el rol en el estado global
                         let userRole = user.rol.rol1;
-                        console.log('User role:', userRole);
                         authStore.setRole(userRole);
+                        
+                        let userId = user.usuarioId;
+                        authStore.setUserId(userId);
+
                         toast.success('Login exitoso!');
 
                         if (userRole === 'Admin') {

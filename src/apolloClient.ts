@@ -16,12 +16,13 @@ const uploadLink = createUploadLink({
   
   // Mantener la configuración de autenticación
   const authLink = setContext((_, { headers }) => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('accessToken');
     return {
       headers: {
         ...headers,
         authorization: token ? `Bearer ${token}` : '',
-        'GraphQL-preflight': '1'
+        'GraphQL-preflight': '1',
+        'Content-Type': 'application/json',
       }
     }
   })
