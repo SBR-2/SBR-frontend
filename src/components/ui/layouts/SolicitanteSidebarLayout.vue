@@ -70,6 +70,9 @@ import BaseSideBar from '../sidebar/BaseSideBar.vue';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { computed } from 'vue';
 import PopUpModal from '../PopUpModal.vue';
+import { useAuthStore } from '../../../stores/authStore';
+import { useToast } from 'vue-toastification';
+import router from '../../../router/router';
 
 export default {
     name: 'SolicitanteSidebarLayout',
@@ -79,6 +82,8 @@ export default {
     },
     data() {
         return {
+            authStore: useAuthStore(),
+            toast: useToast(),
             sidebarLinks: [
                 { to: '/solicitante/lista-productos', icon: 'fas fa-columns', label: 'Lista de Productos' },
             ],
@@ -92,6 +97,13 @@ export default {
         return {
             sidebarWidthPx,
         };
+    },
+    methods: {
+        logout() {
+            this.authStore.logout();
+            this.toast.warning('Has cerrado sesión...');
+            router.push('/login');
+        }
     }
 }
 </script>
