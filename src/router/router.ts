@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import authRoutes from "./routes/authRoutes";
 import adminRoutes from './routes/AdminRoutes';
-import InspectorRoutes from "./routes/InspectorRoutes";
+import EvaluadorRoutes from "./routes/EvaluadorRoutes";
 import { useAuthStore } from "../stores/authStore";
 import { useToast } from "vue-toastification";
 
 // Definición de las rutas
 const routes: Array<RouteRecordRaw> = [
   ...authRoutes,
-  ...InspectorRoutes,
+  ...EvaluadorRoutes,
   ...adminRoutes,
   {
     path: "/", // Ruta por defecto

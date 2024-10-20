@@ -1,6 +1,6 @@
 import { RouteRecordRaw } from 'vue-router';
 
-const InspectorRoutes: Array<RouteRecordRaw> = [
+const EvaluadorRoutes: Array<RouteRecordRaw> = [
   {
     path: '/dashboard-evaluador',
     name: 'Dashboard',
@@ -40,4 +40,4 @@ const InspectorRoutes: Array<RouteRecordRaw> = [
   
   // ...otras rutas
 ];
-export default InspectorRoutes;
+export default EvaluadorRoutes;
